@@ -18,12 +18,20 @@ Usalo come base locale, poi personalizza in base al tuo livello di rischio/veloc
 - `fast`: risposte rapide, costo/latency minori, controlli piu leggeri.
 - `balanced`: profilo predefinito consigliato per lavoro quotidiano.
 - `safe`: piu conservativo, sandbox restrittiva e policy severa.
+- `autonomous`: `approval_policy = "never"` con sandbox ancora `workspace-write`.
 
 ## Uso pratico
 
 - Sessione standard: `codex`
 - Sessione con profilo: `codex -p fast`
 - Sessione con profilo conservativo: `codex -p safe`
+- Sessione autonoma: `codex -p autonomous`
+
+## Quando usare `never`
+
+`never` accelera molto il flusso, ma non avrai richieste di conferma.
+Usalo solo quando il contesto e ben delimitato e con branch dedicato.
+Per minimizzare rischio, abbinalo a `workspace-write` e non a `danger-full-access`.
 
 ## Nota importante
 
