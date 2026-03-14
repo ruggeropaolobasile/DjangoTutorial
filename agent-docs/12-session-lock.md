@@ -14,6 +14,12 @@ Se serve lavorare su un altro clone, si apre una nuova sessione.
 All'inizio della sessione, oppure prima di task importanti, eseguire:
 
 ```powershell
+.\scripts\session-context.ps1
+```
+
+Fallback manuale:
+
+```powershell
 git rev-parse --show-toplevel
 git branch --show-current
 git rev-parse --short HEAD
@@ -29,9 +35,12 @@ Il risultato di questi comandi definisce il contesto canonico della sessione:
 
 Se chat, IDE e terminale mostrano contesti diversi, fa fede il terminale del clone attivo dopo questa verifica.
 
+Lo script stampa anche l'elenco delle worktree note, utile quando si lavora con piu agenti concorrenti sullo stesso repository remoto.
+
 ## Regole operative
 
 - una sessione agente = un clone
+- una sessione agente = una worktree
 - un clone puo avere piu branch, ma non piu sessioni concorrenti
 - nessun cambio clone e ammesso senza nuova verifica esplicita
 - se il contesto non coincide con quanto dichiarato in chat, correggere subito il contesto canonico

@@ -26,6 +26,7 @@ Mantenere il progetto Django tutorial stabile in locale (`sqlite`) e in produzio
 Da root (PowerShell):
 
 ```powershell
+.\scripts\session-context.ps1
 .\scripts\preflight.ps1
 ```
 
@@ -44,7 +45,8 @@ ruff format --check .
   - `git` (branch, diff, commit, push)
   - `python manage.py` (check/test/migrate)
   - `ruff` (lint/format checks)
-  - script locali: `scripts/dev.ps1`, `scripts/preflight.ps1`, `scripts/safe-switch-branch.ps1`
+- script locali: `scripts/dev.ps1`, `scripts/preflight.ps1`, `scripts/safe-switch-branch.ps1`
+- per conferma sessione/worktree: `scripts/session-context.ps1`
 - MCP:
   - stato attuale: nessun server MCP di progetto obbligatorio configurato.
   - quando introdurre MCP: solo se aggiunge contesto reale utile (es. issue tracker, monitoring, design source).
@@ -74,7 +76,8 @@ ruff format --check .
 ## Session lock
 
 - Una chat/sessione agente vale per un solo clone del repository.
-- Il contesto canonico della sessione va fissato all'inizio con:
+- Il contesto canonico della sessione va fissato all'inizio con `.\scripts\session-context.ps1`
+  oppure, in fallback, con:
   - `git rev-parse --show-toplevel`
   - `git branch --show-current`
   - `git rev-parse --short HEAD`
