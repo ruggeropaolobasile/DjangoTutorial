@@ -16,6 +16,10 @@ Percorso consigliato (in ordine):
 12. [`execplan-template.md`](execplan-template.md)
 13. [`10-codex-config-and-profiles.md`](10-codex-config-and-profiles.md)
 14. [`11-prompting-best-practices.md`](11-prompting-best-practices.md)
+15. [`examples/prompt-starters.md`](examples/prompt-starters.md)
+16. [`examples/prompts/ui-vote-page-polish.md`](examples/prompts/ui-vote-page-polish.md)
+17. [`examples/execplan-preflight-hardening.md`](examples/execplan-preflight-hardening.md)
+18. [`examples/prompts/README.md`](examples/prompts/README.md)
 
 ## Checklist rapida (done)
 
