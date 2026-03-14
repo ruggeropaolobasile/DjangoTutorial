@@ -126,20 +126,44 @@ ruff format --check .
 
 Questo repository include un file [`AGENTS.md`](AGENTS.md) per dare a Codex contesto stabile su struttura, comandi e vincoli.
 
-Prompt starter consigliati:
+Gerarchia istruzioni agente:
+
+- Root: [`AGENTS.md`](AGENTS.md) (regole globali repository)
+- App: [`mysite/polls/AGENTS.md`](mysite/polls/AGENTS.md) (regole specifiche app polls)
+- Settings: [`mysite/mysite/settings/AGENTS.md`](mysite/mysite/settings/AGENTS.md) (regole configurazione/deploy)
+
+Prompt starter (copy-paste) consigliati:
 
 ```text
-Implementa <feature> nell'app polls con cambi minimi.
-Esegui manage.py check e riporta file toccati + motivazione.
+Obiettivo: Implementa <feature> in polls.
+Contesto: mysite/polls/views.py, mysite/polls/urls.py, template correlati.
+Vincoli: non cambiare comportamento delle route esistenti.
+Validazione: python manage.py check && python manage.py test polls
+Output: causa, file toccati, test eseguiti.
 ```
 
 ```text
-Correggi il bug <descrizione> e aggiungi un test di regressione.
-Non modificare file generati o non pertinenti.
+Obiettivo: Correggi bug <descrizione> in polls.
+Contesto: riproduci il bug e aggiungi test regressione in mysite/polls/tests.py.
+Vincoli: cambi minimi, niente refactor non richiesti.
+Validazione: python manage.py test polls -v 2
+Output: root cause, fix, test aggiunti.
 ```
 
 ```text
-Fai review del diff corrente, concentrati su bug/regressioni e test mancanti.
+Obiettivo: Modifica configurazione deploy/settings in sicurezza.
+Contesto: mysite/mysite/settings/base.py (+ local.py/production.py se necessario).
+Vincoli: nessun segreto hardcoded, compatibile Render.
+Validazione: python manage.py check && python manage.py check --deploy
+Output: variabili env introdotte/aggiornate e impatto.
+```
+
+```text
+Obiettivo: Fai review del diff corrente.
+Contesto: tutto il branch.
+Vincoli: priorita a bug/regressioni/rischi deploy.
+Validazione: indica test mancanti o non eseguiti.
+Output: findings per severita con file/linea.
 ```
 
 ## Dipendenze
