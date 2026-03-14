@@ -44,6 +44,18 @@ ruff check .
 ruff format --check .
 ```
 
+## CLI tools and MCP
+
+- CLI tools preferiti nel repository:
+  - `git` (branch, diff, commit, push)
+  - `python manage.py` (check/test/migrate)
+  - `ruff` (lint/format checks)
+  - script locali: `scripts/dev.ps1`, `scripts/preflight.ps1`, `scripts/safe-switch-branch.ps1`
+- MCP:
+  - stato attuale: nessun server MCP di progetto obbligatorio configurato.
+  - quando introdurre MCP: solo se aggiunge contesto reale utile (es. issue tracker, monitoring, design source).
+  - regola: documentare ogni MCP introdotto in `docs/onboarding` con scopo, permessi minimi e fallback senza MCP.
+
 ## Regole di modifica
 
 - Preferire cambi minimi e mirati; evitare refactor non richiesti.
