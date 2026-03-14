@@ -6,6 +6,22 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Invoke-NativeCommand {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Description,
+        [Parameter(Mandatory = $true)]
+        [scriptblock]$Command
+    )
+
+    Write-Host "Running: $Description"
+    & $Command
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "'$Description' failed with exit code $LASTEXITCODE."
+        exit $LASTEXITCODE
+    }
+}
+
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Resolve-Path (Join-Path $scriptDir "..")
 $projectDir = Join-Path $repoRoot "mysite"
@@ -18,22 +34,44 @@ if (-not (Test-Path $venvPython)) {
 
 Push-Location $projectDir
 try {
-    & $venvPython manage.py check
+    Invoke-NativeCommand -Description "python manage.py check" -Command {
+        & $venvPython manage.py check
+    }
 
     if (-not $SkipTests) {
-        & $venvPython manage.py test
+        Invoke-NativeCommand -Description "python manage.py test" -Command {
+            & $venvPython manage.py test
+        }
     }
 
     if (-not $SkipLint) {
-        & $venvPython -m ruff check .
+        Invoke-NativeCommand -Description "python -m ruff check ." -Command {
+            & $venvPython -m ruff check .
+        }
     }
 
     if ($DeployChecks) {
-        $env:DJANGO_ENV = "production"
-        $env:DEBUG = "False"
-        $env:SECRET_KEY = "prod-check-secret-key-please-change-in-real-env-0123456789"
-        $env:PUBLIC_DOMAIN = "example.com"
-        & $venvPython manage.py check --deploy
+        $names = @("DJANGO_ENV", "DEBUG", "SECRET_KEY", "PUBLIC_DOMAIN")
+        $originals = @{}
+        foreach ($name in $names) {
+            $originals[$name] = [Environment]::GetEnvironmentVariable($name, "Process")
+        }
+
+        try {
+            [Environment]::SetEnvironmentVariable("DJANGO_ENV", "production", "Process")
+            [Environment]::SetEnvironmentVariable("DEBUG", "False", "Process")
+            [Environment]::SetEnvironmentVariable("SECRET_KEY", "prod-check-secret-key-please-change-in-real-env-0123456789", "Process")
+            [Environment]::SetEnvironmentVariable("PUBLIC_DOMAIN", "example.com", "Process")
+
+            Invoke-NativeCommand -Description "python manage.py check --deploy" -Command {
+                & $venvPython manage.py check --deploy
+            }
+        }
+        finally {
+            foreach ($name in $names) {
+                [Environment]::SetEnvironmentVariable($name, $originals[$name], "Process")
+            }
+        }
     }
 }
 finally {
