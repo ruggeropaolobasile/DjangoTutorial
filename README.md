@@ -113,6 +113,25 @@ ruff format --check .
 3. Fai PR o merge su `main` solo quando e stabile.
 4. Push su `main` -> deploy automatico Render.
 
+### Convenzione branch (team + agenti)
+
+- `main`: branch stabile e protetto
+- `feature/<scope-breve>`: nuove funzionalita
+- `fix/<scope-breve>`: bugfix
+- `chore/<scope-breve>`: manutenzione/configurazione/docs
+
+Esempio flusso:
+
+```bash
+git checkout main
+git pull
+git checkout -b feature/polls-export-csv
+# lavoro con agente
+git add .
+git commit -m "Add polls CSV export"
+git push -u origin feature/polls-export-csv
+```
+
 ## Quality Gate su PR
 
 - CI GitHub Actions esegue:

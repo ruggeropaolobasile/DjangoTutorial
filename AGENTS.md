@@ -46,6 +46,17 @@ ruff format --check .
 - Se serve una migration: creare migration + verificare `python manage.py migrate`.
 - Mantenere compatibilita con configurazione `DJANGO_ENV` e variabili ambiente esistenti.
 
+## Strategia branch
+
+- Base branch: `main` (sempre stabile).
+- Ogni task lavora su un branch dedicato.
+- Naming standard:
+  - `feature/<scope-breve>`
+  - `fix/<scope-breve>`
+  - `chore/<scope-breve>`
+- L'agente usa il branch attualmente checkoutato e non cambia branch da solo, salvo richiesta esplicita.
+- Merge su `main` solo tramite PR con CI verde.
+
 ## Definition of Done
 
 Una task e completa quando:
