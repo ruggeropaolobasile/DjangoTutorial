@@ -113,6 +113,15 @@ ruff format --check .
 3. Fai PR o merge su `main` solo quando e stabile.
 4. Push su `main` -> deploy automatico Render.
 
+## Quality Gate su PR
+
+- CI GitHub Actions esegue:
+  - `python manage.py check`
+  - `python manage.py test`
+  - `ruff check mysite`
+  - `python manage.py check --deploy`
+- `main` e protetto con status check obbligatori e review richiesta.
+
 ## Workflow Codex (dal video, adattato al repo)
 
 Questo repository include un file [`AGENTS.md`](AGENTS.md) per dare a Codex contesto stabile su struttura, comandi e vincoli.
