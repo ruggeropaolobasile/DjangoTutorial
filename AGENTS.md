@@ -63,6 +63,12 @@ ruff format --check .
 - L'agente usa il branch attualmente checkoutato e non cambia branch da solo, salvo richiesta esplicita.
 - Merge su `main` solo tramite PR con CI verde.
 
+## Concorrenza sessioni
+
+- Non eseguire due sessioni agente sullo stesso clone contemporaneamente.
+- Se servono lavori paralleli, usare clone separati del repository.
+- Prima di `checkout` branch diverso: verificare `git status` pulito o fare stash nominato.
+
 ## Definition of Done
 
 Una task e completa quando:

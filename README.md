@@ -166,6 +166,18 @@ Validazione: indica test mancanti o non eseguiti.
 Output: findings per severita con file/linea.
 ```
 
+### Runbook anti-conflitto (sessioni multiple)
+
+Se usi piu agenti in parallelo, evita di farli lavorare sullo stesso clone.
+
+- Usa clone separati:
+  - `C:\repo\DjangoTutorial` per onboarding/processo
+  - `C:\repo\DjangoTutorial-ui` per lavoro UI
+- Una sessione agente per clone.
+- Prima di cambiare branch: working tree pulito (`git status`).
+- Se hai WIP non committato: `git stash push -u -m "<nome-wip>"` prima dello switch.
+- Preferisci commit piccoli e frequenti (1 blocco logico = 1 commit).
+
 ## Dipendenze
 
 - Base comuni: `mysite/requirements/base.txt`
