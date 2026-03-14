@@ -15,6 +15,7 @@ Percorso consigliato (in ordine):
 11. [`PLANS.md`](PLANS.md)
 12. [`execplan-template.md`](execplan-template.md)
 13. [`10-codex-config-and-profiles.md`](10-codex-config-and-profiles.md)
+14. [`11-prompting-best-practices.md`](11-prompting-best-practices.md)
 
 ## Checklist rapida (done)
 
