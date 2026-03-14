@@ -53,6 +53,8 @@ class QuestionIndexViewTests(TestCase):
     def test_hero_actions_are_rendered(self):
         response = self.client.get(reverse("polls:index"))
         self.assertContains(response, "Create Poll")
+        self.assertContains(response, "Open Insights")
+        self.assertContains(response, "View Showcase")
         self.assertContains(response, "Surprise Me")
         self.assertContains(response, "Download Repo")
         self.assertContains(response, "Open GitHub")
@@ -133,6 +135,41 @@ class QuestionIndexViewTests(TestCase):
 
         self.assertQuerySetEqual(response.context["latest_question_list"], [popular, less_popular])
 
+    def test_status_filter_returns_ready_polls(self):
+        ready = create_question(question_text="Ready poll", days=-1)
+        active = create_question(question_text="Active poll", days=-1)
+        Choice.objects.create(question=ready, choice_text="A", votes=6)
+        Choice.objects.create(question=active, choice_text="B", votes=2)
+
+        response = self.client.get(reverse("polls:index"), {"status": "ready"})
+
+        self.assertQuerySetEqual(response.context["latest_question_list"], [ready])
+
+    def test_dashboard_shows_poll_status_summary(self):
+        question = create_question(question_text="Delivery retro", days=-1)
+        Choice.objects.create(question=question, choice_text="Keep", votes=4)
+
+        response = self.client.get(reverse("polls:index"))
+
+        self.assertContains(response, "Most Voted Poll")
+        self.assertContains(response, "Needs Attention")
+        self.assertContains(response, "Healthy")
+        self.assertContains(response, "4 vote")
+        self.assertContains(response, "Featured Decision")
+        self.assertContains(response, "Execution Snapshot")
+
+    def test_dashboard_shows_filter_chips(self):
+        create_question(question_text="Delivery retro", days=-1)
+
+        response = self.client.get(
+            reverse("polls:index"),
+            {"q": "retro", "sort": "popular", "status": "active"},
+        )
+
+        self.assertContains(response, "Search: retro")
+        self.assertContains(response, "Sort: Popular")
+        self.assertContains(response, "Status: Active")
+
 
 class QuestionDetailViewTests(TestCase):
     def test_future_question(self):
@@ -151,9 +188,12 @@ class QuestionDetailViewTests(TestCase):
         displays the question's text.
         """
         past_question = create_question(question_text="Past Question.", days=-5)
+        create_question(question_text="Second Question.", days=-2)
         url = reverse("polls:detail", args=(past_question.id,))
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
+        self.assertContains(response, "Related Polls")
+        self.assertContains(response, "Copy Poll Link")
 
 
 class PollCreateViewTests(TestCase):
@@ -161,6 +201,14 @@ class PollCreateViewTests(TestCase):
         response = self.client.get(reverse("polls:create"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Create a New Poll")
+        self.assertContains(response, "distinct choice lines detected")
+        self.assertContains(response, "Quick Start Templates")
+
+    def test_template_prefills_create_form(self):
+        response = self.client.get(reverse("polls:create"), {"template": "roadmap"})
+
+        self.assertContains(response, "Which feature should we prioritize next sprint?")
+        self.assertContains(response, "Automation hub")
 
     def test_post_creates_poll_and_choices(self):
         response = self.client.post(
@@ -217,6 +265,88 @@ class MvpViewTests(TestCase):
 
         self.assertContains(response, "Roadmap decision")
         self.assertContains(response, "5 vote")
+
+
+class ResultsViewTests(TestCase):
+    def test_results_show_lead_margin_and_runner_up(self):
+        poll = create_question(question_text="Quarterly focus", days=-1)
+        Choice.objects.create(question=poll, choice_text="Automation", votes=7)
+        Choice.objects.create(question=poll, choice_text="Reporting", votes=4)
+
+        response = self.client.get(reverse("polls:results", args=(poll.id,)))
+
+        self.assertContains(response, "Lead Margin")
+        self.assertContains(response, "3 votes ahead")
+        self.assertContains(response, "Reporting")
+        self.assertContains(response, "Continue Exploring")
+        self.assertContains(response, "Copy Results Link")
+        self.assertContains(response, "Create Follow-up Poll")
+        self.assertContains(response, "Export Results")
+
+    def test_results_export_returns_plain_text(self):
+        poll = create_question(question_text="Quarterly focus", days=-1)
+        Choice.objects.create(question=poll, choice_text="Automation", votes=7)
+
+        response = self.client.get(reverse("polls:results_export", args=(poll.id,)))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/plain; charset=utf-8")
+        self.assertContains(response, "Poll Results: Quarterly focus")
+
+
+class InsightsViewTests(TestCase):
+    def test_insights_page_renders(self):
+        response = self.client.get(reverse("polls:insights"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Polling Performance Snapshot")
+        self.assertContains(response, "Leaderboard")
+
+    def test_insights_page_shows_leaderboard_and_quiet_polls(self):
+        loud = create_question(question_text="Platform refresh", days=-1)
+        quiet = create_question(question_text="Workshop slot", days=-1)
+        Choice.objects.create(question=loud, choice_text="Go", votes=6)
+        Choice.objects.create(question=quiet, choice_text="Later", votes=1)
+
+        response = self.client.get(reverse("polls:insights"))
+
+        self.assertContains(response, "Platform refresh")
+        self.assertContains(response, "Workshop slot")
+        self.assertContains(response, "Low traction")
+        self.assertContains(response, "Recommended Actions")
+
+
+class ShowcaseViewTests(TestCase):
+    def test_showcase_page_renders(self):
+        response = self.client.get(reverse("polls:showcase"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Polls as a decision workspace")
+        self.assertContains(response, "Launch a ready-made scenario")
+
+
+class BriefingViewTests(TestCase):
+    def test_briefing_page_renders(self):
+        poll = create_question(question_text="Ops review", days=-1)
+        Choice.objects.create(question=poll, choice_text="A", votes=5)
+
+        response = self.client.get(reverse("polls:briefing"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Executive Decision Brief")
+        self.assertContains(response, "Ops review")
+        self.assertContains(response, "Export Briefing")
+
+    def test_briefing_export_returns_plain_text(self):
+        poll = create_question(question_text="Ops review", days=-1)
+        Choice.objects.create(question=poll, choice_text="A", votes=5)
+
+        response = self.client.get(reverse("polls:briefing_export"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/plain; charset=utf-8")
+        self.assertContains(response, "Polling Studio Briefing")
+        self.assertContains(response, "Ops review")
 
 
 class ReseedDemoDataCommandTests(TestCase):

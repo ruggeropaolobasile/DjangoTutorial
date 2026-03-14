@@ -1,0 +1,69 @@
+{% extends "polls/base.html" %}
+
+{% block title %}Briefing{% endblock %}
+
+{% block content %}
+<section class="hero fade-in">
+    <p class="eyebrow">Briefing</p>
+    <h1>Executive Decision Brief</h1>
+    <p class="hero-copy">
+        A concise review page for stakeholders who need the current signal without navigating the whole app.
+    </p>
+    <div class="hero-actions">
+        <a class="button" href="{% url 'polls:briefing_export' %}">Export Briefing</a>
+        <a class="button button-ghost" href="{% url 'polls:insights' %}">Open Insights</a>
+    </div>
+    <div class="stats-grid">
+        <article class="stat-card">
+            <p>Reviewed Polls</p>
+            <strong>{{ briefing_metrics.reviewed_polls }}</strong>
+        </article>
+        <article class="stat-card">
+            <p>Decision Ready</p>
+            <strong>{{ briefing_metrics.decision_ready }}</strong>
+        </article>
+        <article class="stat-card">
+            <p>Attention Needed</p>
+            <strong>{{ briefing_metrics.attention_needed }}</strong>
+        </article>
+    </div>
+</section>
+
+<section class="split-panel fade-in">
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Key Messages</h2>
+        </div>
+        <div class="recommendation-list">
+            {% for item in briefing_summary %}
+                <article class="recommendation-card">
+                    <p>{{ item }}</p>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-header">
+            <h2>High-Signal Polls</h2>
+        </div>
+        {% if briefing_polls %}
+            <ul class="poll-list">
+                {% for poll in briefing_polls %}
+                    <li>
+                        <a href="{% url 'polls:results' poll.id %}">
+                            {{ poll.question_text }}
+                            <small class="muted-meta">{{ poll.total_votes }} vote{{ poll.total_votes|pluralize }}</small>
+                        </a>
+                        <span class="poll-status {% if poll.total_votes >= 5 %}poll-status-good{% else %}poll-status-warning{% endif %}">
+                            {% if poll.total_votes >= 5 %}Ready{% else %}Watch{% endif %}
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty-state">No polls available for briefing yet.</p>
+        {% endif %}
+    </section>
+</section>
+{% endblock %}

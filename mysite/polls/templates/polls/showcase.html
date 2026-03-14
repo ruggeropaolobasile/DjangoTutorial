@@ -1,0 +1,48 @@
+{% extends "polls/base.html" %}
+
+{% block title %}Showcase{% endblock %}
+
+{% block content %}
+<section class="hero fade-in">
+    <p class="eyebrow">Showcase</p>
+    <h1>Polls as a decision workspace</h1>
+    <p class="hero-copy">
+        A demo-ready framing of the product: create focused questions, capture signal, and move from voting to action.
+    </p>
+    <div class="hero-actions">
+        <a class="button" href="{% url 'polls:create' %}">Create a Poll</a>
+        <a class="button button-secondary" href="{% url 'polls:insights' %}">Open Insights</a>
+        <a class="button button-ghost" href="{% url 'polls:mvp' %}">View MVP Story</a>
+    </div>
+</section>
+
+<section class="split-panel fade-in">
+    {% for section in showcase_sections %}
+        <section class="panel">
+            <div class="panel-header">
+                <h2>{{ section.title }}</h2>
+            </div>
+            <div class="feature-callout">
+                <p>{{ section.body }}</p>
+            </div>
+        </section>
+    {% endfor %}
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <h2>Launch a ready-made scenario</h2>
+    </div>
+    <div class="template-grid">
+        {% for template in starter_templates %}
+            <article class="template-card">
+                <p class="template-title">{{ template.label }}</p>
+                <small>{{ template.question_text }}</small>
+                <div class="inline-actions">
+                    <a class="button button-ghost" href="{% url 'polls:create' %}?template={{ template.slug }}">Use this flow</a>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

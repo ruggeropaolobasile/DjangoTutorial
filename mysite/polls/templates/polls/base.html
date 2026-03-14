@@ -18,9 +18,12 @@
                 <span class="brand-text">Polling Studio</span>
             </a>
             <nav class="topnav" aria-label="Main navigation">
-                <a href="{% url 'polls:index' %}">Polls</a>
-                <a href="{% url 'polls:create' %}">Create</a>
-                <a href="{% url 'polls:mvp' %}">MVP</a>
+                <a class="{% if request.resolver_match.url_name == 'index' %}is-active{% endif %}" href="{% url 'polls:index' %}">Polls</a>
+                <a class="{% if request.resolver_match.url_name == 'create' %}is-active{% endif %}" href="{% url 'polls:create' %}">Create</a>
+                <a class="{% if request.resolver_match.url_name == 'briefing' %}is-active{% endif %}" href="{% url 'polls:briefing' %}">Briefing</a>
+                <a class="{% if request.resolver_match.url_name == 'insights' %}is-active{% endif %}" href="{% url 'polls:insights' %}">Insights</a>
+                <a class="{% if request.resolver_match.url_name == 'mvp' %}is-active{% endif %}" href="{% url 'polls:mvp' %}">MVP</a>
+                <a class="{% if request.resolver_match.url_name == 'showcase' %}is-active{% endif %}" href="{% url 'polls:showcase' %}">Showcase</a>
                 <a href="{% url 'polls:surprise' %}">Surprise</a>
             </nav>
         </header>
@@ -28,6 +31,19 @@
         <main class="content">
             {% block content %}{% endblock %}
         </main>
+        <footer class="footer-strip">
+            <div>
+                <strong>Polling Studio</strong>
+                <p>Decision support UI for lightweight team polling.</p>
+            </div>
+            <div class="footer-links">
+                <a href="{% url 'polls:index' %}">Dashboard</a>
+                <a href="{% url 'polls:create' %}">New Poll</a>
+                <a href="{% url 'polls:briefing' %}">Briefing</a>
+                <a href="{% url 'polls:insights' %}">Insights</a>
+                <a href="{% url 'polls:showcase' %}">Showcase</a>
+            </div>
+        </footer>
     </div>
     {% block extra_scripts %}{% endblock %}
 </body>

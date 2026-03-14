@@ -5,11 +5,16 @@ from . import views
 app_name = "polls"
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
+    path("briefing/", views.BriefingView.as_view(), name="briefing"),
+    path("briefing/export/", views.BriefingExportView.as_view(), name="briefing_export"),
     path("create/", views.CreatePollView.as_view(), name="create"),
+    path("insights/", views.InsightsView.as_view(), name="insights"),
     path("mvp/", views.MvpView.as_view(), name="mvp"),
+    path("showcase/", views.ShowcaseView.as_view(), name="showcase"),
     path("surprise/", views.SurprisePollView.as_view(), name="surprise"),
     path("<int:pk>/", views.DetailView.as_view(), name="detail"),
     path("<int:pk>/results/", views.ResultsView.as_view(), name="results"),
+    path("<int:pk>/results/export/", views.ResultsExportView.as_view(), name="results_export"),
     path("<int:question_id>/vote/", views.vote, name="vote"),
 ]
 '''
