@@ -201,6 +201,7 @@ Se usi piu agenti in parallelo, evita di farli lavorare sullo stesso clone.
 
 ### Onboarding docs
 
+- [`docs/onboarding/README.md`](docs/onboarding/README.md)
 - [`docs/onboarding/00-video-logical-map.md`](docs/onboarding/00-video-logical-map.md)
 - [`docs/onboarding/01-branch-and-clone-strategy.md`](docs/onboarding/01-branch-and-clone-strategy.md)
 - [`docs/onboarding/02-agents-hierarchy.md`](docs/onboarding/02-agents-hierarchy.md)
