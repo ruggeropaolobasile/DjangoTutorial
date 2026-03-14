@@ -11,12 +11,24 @@ from .models import *
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
     context_object_name = "latest_question_list"
+
     def get_queryset(self):
         """
         Return the last five published questions (not including those set to be
         published in the future).
         """
         return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:5]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        repo_url = "https://github.com/ruggeropaolobasile/DjangoTutorial"
+        context["repo_url"] = repo_url
+        context["repo_download_url"] = f"{repo_url}/archive/refs/heads/main.zip"
+        context["poll_markdown_items"] = [
+            {"question_text": question.question_text}
+            for question in context["latest_question_list"]
+        ]
+        return context
 
 class DetailView(generic.DetailView):
     model = Question

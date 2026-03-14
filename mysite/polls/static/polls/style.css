@@ -5,7 +5,7 @@ li a {
 body {
     position: relative;
     margin: 0;
-    padding: 0;
+    padding: 24px;
     height: 100%;
     background: white;
 }
@@ -45,6 +45,50 @@ p {
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
+}
+
+.hero {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 900px;
+    margin-bottom: 20px;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.hero-button {
+    font-size: 14px;
+    padding: 10px 16px;
+}
+
+.copy-feedback {
+    min-height: 20px;
+    margin-top: 10px;
+    color: #1d6e2a;
+}
+
+.poll-list {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 900px;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 12px;
+    }
+
+    .hero,
+    .poll-list {
+        padding: 14px;
+    }
 }
 
 footer {

@@ -47,6 +47,13 @@ def create_question(question_text, days):
 
 
 class QuestionIndexViewTests(TestCase):
+    def test_hero_actions_are_rendered(self):
+        response = self.client.get(reverse("polls:index"))
+        self.assertContains(response, "Download Repo")
+        self.assertContains(response, "Open GitHub")
+        self.assertContains(response, "Copy Site Markdown")
+        self.assertContains(response, "https://github.com/ruggeropaolobasile/DjangoTutorial")
+
     def test_no_questions(self):
         """
         If no questions exist, an appropriate message is displayed.
