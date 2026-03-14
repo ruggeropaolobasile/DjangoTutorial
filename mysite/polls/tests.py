@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Question
+from .models import Choice, Question
 
 
 class QuestionModelTests(TestCase):
@@ -49,6 +49,7 @@ def create_question(question_text, days):
 class QuestionIndexViewTests(TestCase):
     def test_hero_actions_are_rendered(self):
         response = self.client.get(reverse("polls:index"))
+        self.assertContains(response, "Create Poll")
         self.assertContains(response, "Download Repo")
         self.assertContains(response, "Open GitHub")
         self.assertContains(response, "Copy Site Markdown")
@@ -131,3 +132,39 @@ class QuestionDetailViewTests(TestCase):
         url = reverse("polls:detail", args=(past_question.id,))
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
+
+
+class PollCreateViewTests(TestCase):
+    def test_get_create_page(self):
+        response = self.client.get(reverse("polls:create"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Create a New Poll")
+
+    def test_post_creates_poll_and_choices(self):
+        response = self.client.post(
+            reverse("polls:create"),
+            data={
+                "question_text": "What should we build next?",
+                "choices": "Dashboard\nAPI\nCLI",
+            },
+        )
+
+        self.assertEqual(Question.objects.count(), 1)
+        question = Question.objects.get()
+        self.assertEqual(question.question_text, "What should we build next?")
+        self.assertEqual(question.choice_set.count(), 3)
+        self.assertRedirects(response, reverse("polls:detail", args=(question.id,)))
+
+    def test_post_requires_at_least_two_distinct_choices(self):
+        response = self.client.post(
+            reverse("polls:create"),
+            data={
+                "question_text": "Single choice question",
+                "choices": "Only one",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Please provide at least two distinct choices.")
+        self.assertEqual(Question.objects.count(), 0)
+        self.assertEqual(Choice.objects.count(), 0)
