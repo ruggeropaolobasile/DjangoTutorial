@@ -218,6 +218,19 @@ class MvpViewTests(TestCase):
         self.assertContains(response, "Roadmap decision")
         self.assertContains(response, "5 vote")
 
+    def test_mvp_page_contains_pricing_link(self):
+        response = self.client.get(reverse("polls:mvp"))
+        self.assertContains(response, reverse("polls:pricing"))
+
+
+class PricingViewTests(TestCase):
+    def test_pricing_page_renders(self):
+        response = self.client.get(reverse("polls:pricing"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Simple plans for decision-driven teams")
+        self.assertContains(response, "Starter")
+        self.assertContains(response, "Business")
+
 
 class ReseedDemoDataCommandTests(TestCase):
     def test_reseed_command_creates_mvp_profile_by_default(self):

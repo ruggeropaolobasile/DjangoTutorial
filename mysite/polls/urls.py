@@ -7,6 +7,7 @@ urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
     path("create/", views.CreatePollView.as_view(), name="create"),
     path("mvp/", views.MvpView.as_view(), name="mvp"),
+    path("pricing/", views.PricingView.as_view(), name="pricing"),
     path("surprise/", views.SurprisePollView.as_view(), name="surprise"),
     path("<int:pk>/", views.DetailView.as_view(), name="detail"),
     path("<int:pk>/results/", views.ResultsView.as_view(), name="results"),

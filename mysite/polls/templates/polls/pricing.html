@@ -1,0 +1,80 @@
+{% extends "polls/base.html" %}
+
+{% block title %}Pricing{% endblock %}
+
+{% block content %}
+<section class="hero fade-in">
+    <p class="eyebrow">Pricing</p>
+    <h1>Simple plans for decision-driven teams</h1>
+    <p class="hero-copy">
+        Start with collaborative polling and scale into full Decision Loop operations when your team grows.
+    </p>
+</section>
+
+<section class="panel fade-in">
+    <div class="pricing-grid">
+        <article class="pricing-card">
+            <p class="pricing-label">Starter</p>
+            <h2>Free</h2>
+            <p class="pricing-price">EUR 0<span>/month</span></p>
+            <ul>
+                <li>Up to 5 active polls</li>
+                <li>Basic dashboard</li>
+                <li>Manual exports</li>
+            </ul>
+            <a class="button button-ghost" href="{% url 'polls:create' %}">Start Free</a>
+        </article>
+
+        <article class="pricing-card pricing-card-highlight">
+            <p class="pricing-label">Growth</p>
+            <h2>Team</h2>
+            <p class="pricing-price">EUR 29<span>/month</span></p>
+            <ul>
+                <li>Unlimited polls</li>
+                <li>MVP pipeline analytics</li>
+                <li>Decision history view</li>
+                <li>Email support</li>
+            </ul>
+            <a class="button" href="{% url 'polls:mvp' %}">Try Team Workflow</a>
+        </article>
+
+        <article class="pricing-card">
+            <p class="pricing-label">Scale</p>
+            <h2>Business</h2>
+            <p class="pricing-price">Custom<span>/month</span></p>
+            <ul>
+                <li>SSO and audit log</li>
+                <li>Priority integrations</li>
+                <li>Onboarding and training</li>
+            </ul>
+            <a class="button button-secondary" href="{% url 'polls:index' %}">Contact Sales</a>
+        </article>
+    </div>
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <h2>What every plan includes</h2>
+    </div>
+    <ul class="mvp-board">
+        <li>
+            <div class="result-copy">
+                <span>Secure voting flow</span>
+                <small>Always on</small>
+            </div>
+        </li>
+        <li>
+            <div class="result-copy">
+                <span>Decision-ready result pages</span>
+                <small>Included</small>
+            </div>
+        </li>
+        <li>
+            <div class="result-copy">
+                <span>Fast setup and reseed for demos</span>
+                <small>Developer friendly</small>
+            </div>
+        </li>
+    </ul>
+</section>
+{% endblock %}
