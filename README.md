@@ -223,6 +223,7 @@ Se usi piu agenti in parallelo, evita di farli lavorare sullo stesso clone.
 - [`docs/onboarding/02-agents-hierarchy.md`](docs/onboarding/02-agents-hierarchy.md)
 - [`docs/onboarding/03-pr-ci-process.md`](docs/onboarding/03-pr-ci-process.md)
 - [`docs/onboarding/04-preflight-and-safe-switch.md`](docs/onboarding/04-preflight-and-safe-switch.md)
+- [`docs/onboarding/05-mcp-github-starter.md`](docs/onboarding/05-mcp-github-starter.md)
 
 ## Dipendenze
 

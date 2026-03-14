@@ -7,6 +7,7 @@ Percorso consigliato (in ordine):
 3. [`02-agents-hierarchy.md`](02-agents-hierarchy.md)
 4. [`03-pr-ci-process.md`](03-pr-ci-process.md)
 5. [`04-preflight-and-safe-switch.md`](04-preflight-and-safe-switch.md)
+6. [`05-mcp-github-starter.md`](05-mcp-github-starter.md)
 
 ## Checklist rapida (done)
 
