@@ -39,3 +39,4 @@ Thumbs.db
 
 # Local workspace artifacts
 tmp/
+__sync_test.txt
