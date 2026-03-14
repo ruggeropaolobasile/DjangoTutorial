@@ -1,35 +1,99 @@
-{% load static %}
+﻿{% extends "polls/base.html" %}
 
-<link rel="stylesheet" href="{% static 'polls/style.css' %}">
+{% block title %}Polls Dashboard{% endblock %}
 
-<section class="hero">
+{% block content %}
+{% if request.GET.empty %}
+<section class="panel notice-panel fade-in">
+    <p>No published polls yet, so there was nothing to pick at random.</p>
+</section>
+{% endif %}
+
+<section class="hero fade-in">
+    <p class="eyebrow">Dashboard</p>
     <h1>Django Tutorial Polls</h1>
-    <p>Quick actions for repository access and project markdown.</p>
+    <p class="hero-copy">
+        Run lightweight surveys, monitor participation, and keep your team decisions transparent.
+    </p>
+    <div class="stats-grid">
+        <article class="stat-card">
+            <p>Total Polls</p>
+            <strong>{{ total_polls }}</strong>
+        </article>
+        <article class="stat-card">
+            <p>Total Votes</p>
+            <strong>{{ total_votes }}</strong>
+        </article>
+        <article class="stat-card">
+            <p>Latest Poll</p>
+            <strong>
+                {% if newest_poll %}
+                    {{ newest_poll.question_text|truncatechars:40 }}
+                {% else %}
+                    None yet
+                {% endif %}
+            </strong>
+        </article>
+    </div>
     <div class="hero-actions">
-        <a class="button hero-button" href="{% url 'polls:create' %}">Create Poll</a>
-        <a class="button hero-button" href="{{ repo_download_url }}">Download Repo</a>
-        <a class="button hero-button" href="{{ repo_url }}" target="_blank" rel="noopener noreferrer">Open GitHub</a>
-        <button id="copy-markdown-btn" class="button hero-button" type="button">Copy Site Markdown</button>
+        <a class="button" href="{% url 'polls:create' %}">Create Poll</a>
+        <a class="button button-secondary" href="{% url 'polls:surprise' %}">Surprise Me</a>
+        <a class="button button-secondary" href="{{ repo_download_url }}">Download Repo</a>
+        <a class="button button-ghost" href="{{ repo_url }}" target="_blank" rel="noopener noreferrer">Open GitHub</a>
+        <button id="copy-markdown-btn" class="button button-secondary" type="button">Copy Site Markdown</button>
     </div>
     <p id="copy-feedback" class="copy-feedback" role="status" aria-live="polite"></p>
 </section>
 
-<section class="poll-list">
+<section class="panel fade-in">
+    <div class="panel-header">
+        <h2>Poll Explorer</h2>
+        <form method="get" class="toolbar-form">
+            <label class="visually-hidden" for="poll-search">Search polls</label>
+            <input
+                id="poll-search"
+                type="text"
+                name="q"
+                value="{{ search_term }}"
+                placeholder="Search question text..."
+            >
+            <label class="visually-hidden" for="poll-sort">Sort polls</label>
+            <select id="poll-sort" name="sort">
+                <option value="recent" {% if sort_key == "recent" %}selected{% endif %}>Most Recent</option>
+                <option value="popular" {% if sort_key == "popular" %}selected{% endif %}>Most Popular</option>
+            </select>
+            <button type="submit" class="button button-ghost">Apply</button>
+        </form>
+    </div>
     {% if latest_question_list %}
-        <ul>
+        <ul class="poll-list">
         {% for question in latest_question_list %}
-            <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+            <li>
+                <a href="{% url 'polls:detail' question.id %}">
+                    {{ question.question_text }}
+                    <small class="muted-meta">
+                        Published {{ question.pub_date|date:"M d, Y H:i" }}
+                    </small>
+                </a>
+                <span class="poll-list-arrow" aria-hidden="true">View</span>
+            </li>
         {% endfor %}
         </ul>
     {% else %}
-        <p>No polls are available.</p>
+        <p class="empty-state">
+            No polls are available.
+            {% if request.GET.q %}
+                Try a different search or remove filters.
+            {% else %}
+                Create your first one to get started.
+            {% endif %}
+        </p>
     {% endif %}
 </section>
+{% endblock %}
 
-<p>Questa app puo usare domande con risposte preimpostate.</p>
-
+{% block extra_scripts %}
 {{ poll_markdown_items|json_script:"polls-data" }}
-
 <script>
     (function () {
         const copyButton = document.getElementById("copy-markdown-btn");
@@ -81,3 +145,4 @@
         copyButton.addEventListener("click", copyMarkdown);
     })();
 </script>
+{% endblock %}

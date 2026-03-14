@@ -30,6 +30,7 @@ Opzioni utili:
 ```powershell
 .\scripts\dev.ps1 -BindHost 0.0.0.0 -Port 8001 -SkipInstall
 .\scripts\dev.ps1 -SkipMigrate
+.\scripts\dev.ps1 -Reseed -SeedProfile mvp
 ```
 
 Se l'automazione browser si blocca su Chrome senza chiudere tutte le finestre:
@@ -46,6 +47,7 @@ Opzioni utili:
 ```bash
 HOST=0.0.0.0 PORT=8001 SKIP_INSTALL=1 bash scripts/dev.sh
 SKIP_MIGRATE=1 bash scripts/dev.sh
+RESEED=1 SEED_PROFILE=mvp bash scripts/dev.sh
 ```
 
 ### 1) Crea e attiva virtual environment
@@ -94,6 +96,20 @@ python manage.py runserver
 ```
 
 App disponibile su `http://127.0.0.1:8000/`.
+
+### Demo reseed per nuove feature
+
+Da `mysite/` con venv attivo:
+
+```bash
+python manage.py reseed_demo_data --profile mvp
+```
+
+Profili disponibili:
+
+- `core`: dataset minimo (5 poll) per flow essenziale
+- `mvp`: dataset consigliato (8 poll) per dashboard + MVP page
+- `full`: dataset esteso (10 poll) per test visual/ricerca
 
 ## Quality checks locali
 

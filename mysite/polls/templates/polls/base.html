@@ -1,0 +1,34 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Django Tutorial Polls{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
+</head>
+<body>
+    <div class="background-orb background-orb-one" aria-hidden="true"></div>
+    <div class="background-orb background-orb-two" aria-hidden="true"></div>
+
+    <div class="page-shell">
+        <header class="topbar">
+            <a class="brand" href="{% url 'polls:index' %}">
+                <span class="brand-mark">DT</span>
+                <span class="brand-text">Polling Studio</span>
+            </a>
+            <nav class="topnav" aria-label="Main navigation">
+                <a href="{% url 'polls:index' %}">Polls</a>
+                <a href="{% url 'polls:create' %}">Create</a>
+                <a href="{% url 'polls:mvp' %}">MVP</a>
+                <a href="{% url 'polls:surprise' %}">Surprise</a>
+            </nav>
+        </header>
+
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
