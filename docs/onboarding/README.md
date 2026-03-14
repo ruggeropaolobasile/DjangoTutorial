@@ -8,6 +8,7 @@ Percorso consigliato (in ordine):
 4. [`03-pr-ci-process.md`](03-pr-ci-process.md)
 5. [`04-preflight-and-safe-switch.md`](04-preflight-and-safe-switch.md)
 6. [`05-mcp-github-starter.md`](05-mcp-github-starter.md)
+7. [`06-video-step-04-17-to-08-12.md`](06-video-step-04-17-to-08-12.md)
 
 ## Checklist rapida (done)
 
