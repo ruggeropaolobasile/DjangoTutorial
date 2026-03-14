@@ -1,0 +1,9 @@
+# Example only: keep this outside the repository in your local Codex config.
+# Do not commit tokens.
+
+[mcp_servers.github]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-github"]
+
+[mcp_servers.github.env]
+GITHUB_PERSONAL_ACCESS_TOKEN = "${GITHUB_TOKEN}"

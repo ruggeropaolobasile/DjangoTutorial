@@ -231,7 +231,6 @@ class PricingViewTests(TestCase):
         self.assertContains(response, "Starter")
         self.assertContains(response, "Business")
 
-
 class ReseedDemoDataCommandTests(TestCase):
     def test_reseed_command_creates_mvp_profile_by_default(self):
         out = StringIO()

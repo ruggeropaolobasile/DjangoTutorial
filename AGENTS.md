@@ -4,28 +4,29 @@ Istruzioni operative per agenti AI (Codex/CLI/IDE) su questo repository.
 
 ## Obiettivo del progetto
 
-Applicazione Django di tutorial con:
-- app principale `polls`
-- configurazione `settings` separata per `local` e `production`
-- workflow di deploy su Render
-
-L'obiettivo durante le modifiche e mantenere il progetto stabile in locale (`sqlite`) e in produzione (`postgres` via `DATABASE_URL`).
+Mantenere il progetto Django tutorial stabile in locale (`sqlite`) e in produzione (`postgres` via `DATABASE_URL`), con modifiche piccole e verificabili.
 
 ## Struttura da conoscere
 
-- `mysite/manage.py`: entrypoint Django
-- `mysite/mysite/settings/base.py`: configurazione condivisa
-- `mysite/mysite/settings/local.py`: override sviluppo locale
-- `mysite/mysite/settings/production.py`: override produzione
-- `mysite/polls/`: app tutorial (models, views, templates, admin)
-- `scripts/dev.ps1` e `scripts/dev.sh`: avvio sviluppo one-command
+- `mysite/manage.py`
+- `mysite/mysite/settings/base.py`
+- `mysite/mysite/settings/local.py`
+- `mysite/mysite/settings/production.py`
+- `mysite/polls/`
+- `scripts/dev.ps1`, `scripts/dev.sh`, `scripts/preflight.*`, `scripts/safe-switch-branch.*`
 
-## Comandi standard
+## Gerarchia AGENTS.md
 
-Da root:
+- Questo file vale a livello repository.
+- I file `AGENTS.md` in sottocartelle aggiungono regole locali.
+- In conflitto, vince la regola piu specifica (piu vicina ai file toccati).
+
+## Comandi minimi di verifica
+
+Da root (PowerShell):
 
 ```powershell
-.\scripts\dev.ps1
+.\scripts\preflight.ps1
 ```
 
 Preflight obbligatorio prima di modifiche o branch switch:
@@ -37,9 +38,8 @@ Preflight obbligatorio prima di modifiche o branch switch:
 Da `mysite/` con virtualenv attivo:
 
 ```bash
-python manage.py migrate
-python manage.py test
 python manage.py check
+python manage.py test
 ruff check .
 ruff format --check .
 ```
@@ -47,45 +47,68 @@ ruff format --check .
 ## Regole di modifica
 
 - Preferire cambi minimi e mirati; evitare refactor non richiesti.
-- Non toccare `.venv/`, `.venv311/`, cache o file generati automaticamente.
+- Non toccare `.venv/`, `.venv311/`, cache, file generati automaticamente.
 - Non modificare `db.sqlite3` salvo richiesta esplicita.
-- Se serve una migration: creare migration + verificare `python manage.py migrate`.
+- Se serve una migration: crearla e verificare `python manage.py migrate`.
 - Mantenere compatibilita con configurazione `DJANGO_ENV` e variabili ambiente esistenti.
 - Non assumere che Explorer VS Code, terminale integrato e sessione agente puntino alla stessa root: verificare sempre `repo_root`, `branch` e `role` con `scripts/workspace-preflight.ps1`.
 
-## Definition of Done
+## Strategia branch
 
-Una task e completa quando:
+- Base branch: `main`.
+- Un task = un branch dedicato (`feature/*`, `fix/*`, `chore/*`).
+- L'agente usa il branch attualmente checkoutato e non cambia branch da solo, salvo richiesta esplicita.
+- Merge su `main` solo tramite PR con CI verde.
+
+## Concorrenza sessioni
+
+- Non eseguire due sessioni agente sullo stesso clone contemporaneamente.
+- Se servono lavori paralleli, usare clone separati del repository.
+- Prima di cambiare branch: working tree pulito (`git status`) o stash nominato.
+
+## Definition of Done
 
 1. Il comportamento richiesto e implementato.
 2. Le route/pagine coinvolte rispondono correttamente.
 3. `python manage.py check` non segnala errori.
-4. Se possibile, test rilevanti eseguiti (o motivare se non eseguiti).
+4. Test rilevanti eseguiti (o motivare se non eseguiti).
 5. Il diff non include file non pertinenti.
 
-## Prompt patterns consigliati
+## Agentic loop (punto 2)
 
-Usare richieste esplicite e verificabili.
+- Ogni task deve chiudersi con un loop `modifica -> verifica -> fix -> riverifica`.
+- Se un controllo viene ripetuto spesso a mano dopo l'esecuzione dell'agente, va codificato in script/checklist.
 
-Feature:
+## Errori reali e miglioramento continuo (punto 3)
 
-```text
-Implementa <feature> in polls, aggiorna template e urls se serve.
-Vincoli: non cambiare il comportamento esistente di <area>.
-Esegui check finali e mostrami file toccati + motivazione.
-```
+- Mantenere un log leggero dei problemi reali incontrati (gotchas) e della correzione adottata.
+- Ogni errore ricorrente deve produrre almeno uno tra: regola AGENTS, check/script, test, nota onboarding.
 
-Bugfix:
+## File task-specific (punto 4)
 
-```text
-Riproduci e correggi il bug <descrizione>.
-Aggiungi test di regressione in polls/tests.py.
-Mostrami causa radice, fix e come verificarlo.
-```
+- Per task non banali, seguire un `.md` dedicato invece di sovraccaricare questo file.
+- `AGENTS.md` resta corto: regole globali qui, dettagli operativi nei playbook task-specific.
+- Per task grandi/multi-step, usare `agent-docs/PLANS.md` come documento vivo.
+- Ogni ExecPlan deve usare il template `agent-docs/execplan-template.md`.
 
-Code review:
+## Dove trovare i dettagli
 
-```text
-Fai review del diff corrente con priorita a bug/regressioni.
-Elenca findings per severita con file/linea e proposta di fix.
-```
+- Onboarding index: `agent-docs/README.md`
+- Strategia branch/clone: `agent-docs/01-branch-and-clone-strategy.md`
+- Gerarchia agents: `agent-docs/02-agents-hierarchy.md`
+- Processo PR/CI: `agent-docs/03-pr-ci-process.md`
+- Preflight/switch: `agent-docs/04-preflight-and-safe-switch.md`
+- MCP starter: `agent-docs/05-mcp-github-starter.md`
+- Agentic loops: `agent-docs/07-unlock-agentic-loops.md`
+- Gotchas e miglioramento continuo: `agent-docs/08-real-mistakes-and-gotchas.md`
+- Playbook task-specific: `agent-docs/09-task-specific-playbooks.md`
+- Planning template: `agent-docs/PLANS.md`
+- ExecPlan template: `agent-docs/execplan-template.md`
+
+## Formato risposta agente
+
+- Prima: soluzione in 1-3 righe.
+- Poi: file toccati + motivazione sintetica.
+- Infine: comandi eseguiti e risultato.
+- Se qualcosa non e verificabile localmente, dichiararlo esplicitamente.
+

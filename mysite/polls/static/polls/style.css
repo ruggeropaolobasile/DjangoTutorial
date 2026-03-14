@@ -428,7 +428,6 @@ body {
     display: grid;
     gap: 0.28rem;
 }
-
 .stack-form {
     margin-top: 0.9rem;
     display: grid;
@@ -594,7 +593,6 @@ ul.errorlist {
     .pricing-grid {
         grid-template-columns: 1fr;
     }
-
     .toolbar-form {
         width: 100%;
     }
