@@ -29,3 +29,7 @@ Percorso consigliato (in ordine):
 
 Il file `__sync_test.txt` e usato solo come marker manuale di sincronizzazione chat.
 Non includerlo nei commit standard.
+
+## Handoff utile
+
+- `agent-docs/issues/video-session-handoff.md`: stato minimo per riaprire una nuova sessione sul clone video corretto.
