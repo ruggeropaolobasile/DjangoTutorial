@@ -106,6 +106,13 @@ ruff check .
 ruff format --check .
 ```
 
+Oppure da root (PowerShell):
+```powershell
+.\scripts\preflight.ps1
+.\scripts\preflight.ps1 -SkipTests
+.\scripts\preflight.ps1 -DeployChecks
+```
+
 ## Workflow Git consigliato
 
 1. Lavora su branch feature (`feature/...`).
@@ -191,6 +198,15 @@ Se usi piu agenti in parallelo, evita di farli lavorare sullo stesso clone.
 - Prima di cambiare branch: working tree pulito (`git status`).
 - Se hai WIP non committato: `git stash push -u -m "<nome-wip>"` prima dello switch.
 - Preferisci commit piccoli e frequenti (1 blocco logico = 1 commit).
+
+### Onboarding docs
+
+- [`docs/onboarding/README.md`](docs/onboarding/README.md)
+- [`docs/onboarding/00-video-logical-map.md`](docs/onboarding/00-video-logical-map.md)
+- [`docs/onboarding/01-branch-and-clone-strategy.md`](docs/onboarding/01-branch-and-clone-strategy.md)
+- [`docs/onboarding/02-agents-hierarchy.md`](docs/onboarding/02-agents-hierarchy.md)
+- [`docs/onboarding/03-pr-ci-process.md`](docs/onboarding/03-pr-ci-process.md)
+- [`docs/onboarding/04-preflight-and-safe-switch.md`](docs/onboarding/04-preflight-and-safe-switch.md)
 
 ## Dipendenze
 

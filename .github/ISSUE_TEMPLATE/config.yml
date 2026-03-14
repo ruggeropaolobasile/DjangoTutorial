@@ -1,0 +1,6 @@
+blank_issues_enabled: true
+
+contact_links:
+  - name: Onboarding docs
+    url: https://github.com/ruggeropaolobasile/DjangoTutorial/blob/main/docs/onboarding/README.md
+    about: Percorso operativo consigliato per task e PR.
