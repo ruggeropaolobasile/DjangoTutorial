@@ -18,6 +18,21 @@ In sintesi:
 - GitHub Project dice `cosa viene dopo`
 - `agent-docs/` dice `come lavorarlo`
 
+## Project selection rule
+
+Se esistono piu project board o backlog possibili, il workspace deve dichiararne uno canonico.
+
+Per questo repository, il backlog canonico e:
+
+- `https://github.com/users/ruggeropaolobasile/projects/1`
+
+Regola operativa:
+
+1. una sessione agente usa un solo clone
+2. quel clone usa un solo project canonico per la sequenza dei task
+3. se esistono backlog alternativi, non si cambia project implicitamente nella stessa chat
+4. un cambio di project richiede aggiornamento esplicito dei docs del workspace o di un playbook task-specific
+
 ## Required fields
 
 Ogni item usato nel ciclo autonomo deve avere almeno:

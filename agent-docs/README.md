@@ -16,6 +16,8 @@ Percorso consigliato (in ordine):
 12. [`execplan-template.md`](execplan-template.md)
 13. [`10-codex-config-and-profiles.md`](10-codex-config-and-profiles.md)
 14. [`11-prompting-best-practices.md`](11-prompting-best-practices.md)
+15. [`12-session-lock.md`](12-session-lock.md)
+16. [`13-project-backlog-flow.md`](13-project-backlog-flow.md)
 
 ## Checklist rapida (done)
 
@@ -29,6 +31,18 @@ Percorso consigliato (in ordine):
 
 Il file `__sync_test.txt` e usato solo come marker manuale di sincronizzazione chat.
 Non includerlo nei commit standard.
+
+## Backlog canonico
+
+Per la sequenza dei task, il backlog canonico del workspace e il GitHub Project dell'utente:
+
+- `https://github.com/users/ruggeropaolobasile/projects/1`
+
+Regola di selezione:
+
+- una sessione usa un solo clone e un solo backlog canonico
+- per `DjangoTutorial`, il Project sopra e la coda principale salvo playbook piu specifici
+- `agent-docs/13-project-backlog-flow.md` definisce come scegliere il prossimo item
 
 ## Handoff utile
 
