@@ -20,6 +20,12 @@ L'obiettivo durante le modifiche e mantenere il progetto stabile in locale (`sql
 - `mysite/polls/`: app tutorial (models, views, templates, admin)
 - `scripts/dev.ps1` e `scripts/dev.sh`: avvio sviluppo one-command
 
+## Gerarchia AGENTS.md
+
+- Questo file definisce le regole globali del repository.
+- Se presenti file `AGENTS.md` in sottocartelle, valgono in aggiunta per quella directory.
+- In caso di conflitto, seguire la regola piu specifica (piu vicina ai file modificati).
+
 ## Comandi standard
 
 Da root:
@@ -46,6 +52,17 @@ ruff format --check .
 - Se serve una migration: creare migration + verificare `python manage.py migrate`.
 - Mantenere compatibilita con configurazione `DJANGO_ENV` e variabili ambiente esistenti.
 
+## Strategia branch
+
+- Base branch: `main` (sempre stabile).
+- Ogni task lavora su un branch dedicato.
+- Naming standard:
+  - `feature/<scope-breve>`
+  - `fix/<scope-breve>`
+  - `chore/<scope-breve>`
+- L'agente usa il branch attualmente checkoutato e non cambia branch da solo, salvo richiesta esplicita.
+- Merge su `main` solo tramite PR con CI verde.
+
 ## Definition of Done
 
 Una task e completa quando:
@@ -59,6 +76,16 @@ Una task e completa quando:
 ## Prompt patterns consigliati
 
 Usare richieste esplicite e verificabili.
+
+Template task (consigliato):
+
+```text
+Obiettivo: <cosa vuoi ottenere>
+Contesto: <file/area coinvolta>
+Vincoli: <cosa non toccare>
+Validazione: <check/test da eseguire>
+Output: <come vuoi il report finale>
+```
 
 Feature:
 
@@ -82,3 +109,10 @@ Code review:
 Fai review del diff corrente con priorita a bug/regressioni.
 Elenca findings per severita con file/linea e proposta di fix.
 ```
+
+## Formato risposta richiesto all'agente
+
+- Prima: soluzione in 1-3 righe.
+- Poi: file toccati + motivazione sintetica.
+- Infine: comandi eseguiti e risultato.
+- Se qualcosa non e verificabile localmente, dichiararlo esplicitamente.

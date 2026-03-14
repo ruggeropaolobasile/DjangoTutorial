@@ -21,6 +21,7 @@ env/
 mysite/db.sqlite3
 mysite/staticfiles/
 media/
+*.sqbpro
 
 # Tool caches
 .pytest_cache/
@@ -35,3 +36,6 @@ htmlcov/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Local workspace artifacts
+tmp/
