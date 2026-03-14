@@ -113,6 +113,20 @@ ruff format --check .
 3. Fai PR o merge su `main` solo quando e stabile.
 4. Push su `main` -> deploy automatico Render.
 
+### Switch branch in sicurezza
+
+PowerShell:
+```powershell
+.\scripts\safe-switch-branch.ps1 -Branch fix/polls-vote-guard -CreateFromMain
+.\scripts\safe-switch-branch.ps1 -Branch chore/codex-onboarding-from-video
+```
+
+Git Bash:
+```bash
+bash scripts/safe-switch-branch.sh fix/polls-vote-guard --create-from-main
+bash scripts/safe-switch-branch.sh chore/codex-onboarding-from-video
+```
+
 ## Quality Gate su PR
 
 - CI GitHub Actions esegue:
