@@ -106,6 +106,13 @@ ruff check .
 ruff format --check .
 ```
 
+Oppure da root (PowerShell):
+```powershell
+.\scripts\preflight.ps1
+.\scripts\preflight.ps1 -SkipTests
+.\scripts\preflight.ps1 -DeployChecks
+```
+
 ## Workflow Git consigliato
 
 1. Lavora su branch feature (`feature/...`).
