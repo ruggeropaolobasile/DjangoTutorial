@@ -107,6 +107,14 @@ body {
     gap: 0.35rem;
 }
 
+.nav-user {
+    align-self: center;
+    color: var(--muted);
+    font-size: 0.92rem;
+    font-weight: 600;
+    padding: 0.4rem 0.2rem;
+}
+
 .topnav a {
     text-decoration: none;
     color: #0b5561;
@@ -122,6 +130,27 @@ body {
 .topnav a.is-active {
     background: var(--primary-soft);
     color: #0f3b53;
+}
+
+.nav-inline-form {
+    margin: 0;
+}
+
+.nav-button {
+    appearance: none;
+    border: 1px solid rgba(15, 118, 110, 0.18);
+    background: rgba(255, 255, 255, 0.88);
+    color: #0b5561;
+    font: inherit;
+    font-weight: 600;
+    padding: 0.5rem 0.8rem;
+    border-radius: 0.55rem;
+    cursor: pointer;
+}
+
+.nav-button:hover,
+.nav-button:focus-visible {
+    background: var(--primary-soft);
 }
 
 .content {

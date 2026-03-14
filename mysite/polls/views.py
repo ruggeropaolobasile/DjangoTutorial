@@ -1,5 +1,6 @@
 from urllib.parse import urlencode
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseRedirect
@@ -201,7 +202,7 @@ class ResultsView(generic.DetailView):
         return context
 
 
-class CreatePollView(generic.FormView):
+class CreatePollView(LoginRequiredMixin, generic.FormView):
     template_name = "polls/create.html"
     form_class = PollCreateForm
 

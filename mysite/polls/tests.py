@@ -1,6 +1,7 @@
 import datetime
 from io import StringIO
 
+from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.db.models import Sum
 from django.test import TestCase
@@ -197,20 +198,35 @@ class QuestionDetailViewTests(TestCase):
 
 
 class PollCreateViewTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="demo-user",
+            password="safe-password-123",
+        )
+
     def test_get_create_page(self):
+        self.client.login(username="demo-user", password="safe-password-123")
         response = self.client.get(reverse("polls:create"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Create a New Poll")
         self.assertContains(response, "distinct choice lines detected")
         self.assertContains(response, "Quick Start Templates")
 
+    def test_create_requires_authentication(self):
+        response = self.client.get(reverse("polls:create"))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("login"), response.url)
+
     def test_template_prefills_create_form(self):
+        self.client.login(username="demo-user", password="safe-password-123")
         response = self.client.get(reverse("polls:create"), {"template": "roadmap"})
 
         self.assertContains(response, "Which feature should we prioritize next sprint?")
         self.assertContains(response, "Automation hub")
 
     def test_post_creates_poll_and_choices(self):
+        self.client.login(username="demo-user", password="safe-password-123")
         response = self.client.post(
             reverse("polls:create"),
             data={
@@ -226,6 +242,7 @@ class PollCreateViewTests(TestCase):
         self.assertRedirects(response, reverse("polls:detail", args=(question.id,)))
 
     def test_post_requires_at_least_two_distinct_choices(self):
+        self.client.login(username="demo-user", password="safe-password-123")
         response = self.client.post(
             reverse("polls:create"),
             data={
@@ -238,6 +255,48 @@ class PollCreateViewTests(TestCase):
         self.assertContains(response, "Please provide at least two distinct choices.")
         self.assertEqual(Question.objects.count(), 0)
         self.assertEqual(Choice.objects.count(), 0)
+
+
+class AuthFlowTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="demo-user",
+            password="safe-password-123",
+        )
+
+    def test_login_page_renders(self):
+        response = self.client.get(reverse("login"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Sign in")
+        self.assertContains(response, "Welcome back")
+
+    def test_base_navigation_shows_sign_in_for_anonymous_users(self):
+        response = self.client.get(reverse("polls:index"))
+
+        self.assertContains(response, "Sign in")
+        self.assertNotContains(response, "Sign out")
+
+    def test_login_redirects_to_index_and_updates_navigation(self):
+        response = self.client.post(
+            reverse("login"),
+            data={"username": "demo-user", "password": "safe-password-123"},
+        )
+
+        self.assertRedirects(response, reverse("polls:index"))
+        follow_up = self.client.get(reverse("polls:index"))
+        self.assertContains(follow_up, "Signed in as demo-user")
+        self.assertContains(follow_up, "Sign out")
+
+    def test_logout_redirects_to_index(self):
+        self.client.login(username="demo-user", password="safe-password-123")
+
+        response = self.client.post(reverse("logout"))
+
+        self.assertRedirects(response, reverse("polls:index"))
+        follow_up = self.client.get(reverse("polls:index"))
+        self.assertContains(follow_up, "Sign in")
+        self.assertNotContains(follow_up, "Signed in as demo-user")
 
 
 class SurprisePollViewTests(TestCase):
