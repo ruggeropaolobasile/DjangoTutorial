@@ -14,6 +14,7 @@ Percorso consigliato (in ordine):
 10. [`09-task-specific-playbooks.md`](09-task-specific-playbooks.md)
 11. [`PLANS.md`](PLANS.md)
 12. [`execplan-template.md`](execplan-template.md)
+13. [`10-codex-config-and-profiles.md`](10-codex-config-and-profiles.md)
 
 ## Checklist rapida (done)
 

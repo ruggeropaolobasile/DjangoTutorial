@@ -1,0 +1,33 @@
+# Example Codex CLI config.toml
+# Copy to your local Codex config path and customize.
+
+model = "gpt-5"
+model_reasoning_effort = "medium"
+
+# Workspace policy defaults (set per your safety preference).
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
+
+# Enable built-in web search by default when needed.
+web_search = true
+
+[profiles.fast]
+model = "gpt-5-mini"
+model_reasoning_effort = "low"
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
+web_search = false
+
+[profiles.balanced]
+model = "gpt-5"
+model_reasoning_effort = "medium"
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
+web_search = true
+
+[profiles.safe]
+model = "gpt-5"
+model_reasoning_effort = "high"
+sandbox_mode = "read-only"
+approval_policy = "untrusted"
+web_search = true

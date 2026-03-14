@@ -107,6 +107,7 @@ ruff format --check .
 - Agentic loops: `agent-docs/07-unlock-agentic-loops.md`
 - Gotchas e miglioramento continuo: `agent-docs/08-real-mistakes-and-gotchas.md`
 - Playbook task-specific: `agent-docs/09-task-specific-playbooks.md`
+- Codex config/profili: `agent-docs/10-codex-config-and-profiles.md`
 - Planning template: `agent-docs/PLANS.md`
 - ExecPlan template: `agent-docs/execplan-template.md`
 
