@@ -13,6 +13,13 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 PROJECT_DIR="${REPO_ROOT}/mysite"
 VENV_DIR="${PROJECT_DIR}/.venv"
 VENV_PYTHON="${VENV_DIR}/Scripts/python.exe"
+PREFLIGHT_SCRIPT="${SCRIPT_DIR}/workspace-preflight.sh"
+
+if [[ -f "${PREFLIGHT_SCRIPT}" ]]; then
+  echo "Workspace identity preflight"
+  bash "${PREFLIGHT_SCRIPT}" --workspace-path "${REPO_ROOT}"
+  echo
+fi
 
 if [[ ! -x "${VENV_PYTHON}" ]]; then
   echo "Creating virtualenv in ${VENV_DIR}"

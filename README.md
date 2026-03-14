@@ -136,6 +136,31 @@ Oppure da root (PowerShell):
 3. Fai PR o merge su `main` solo quando e stabile.
 4. Push su `main` -> deploy automatico Render.
 
+## Preflight workspace per VS Code + Codex
+
+Quando lavori con clone separati, non assumere che finestra VS Code, terminale integrato e sessione Codex puntino alla stessa root.
+
+Check rapido:
+
+```powershell
+.\scripts\workspace-preflight.ps1
+```
+
+```bash
+bash scripts/workspace-preflight.sh
+```
+
+Gli script di sviluppo [`scripts/dev.ps1`](scripts/dev.ps1) e [`scripts/dev.sh`](scripts/dev.sh) eseguono automaticamente questo controllo all'avvio e stampano l'identita del clone prima di install, migrate e runserver.
+
+Per distinguere i clone, puoi creare un file locale non tracciato `.codex-role` nella root del repository, ad esempio con valore `ui` oppure `video`.
+
+Prima di modificare file o cambiare branch, verifica sempre:
+
+- `repo_root`
+- `branch`
+- `role`
+
+Playbook completo: [`docs/workspace-preflight.md`](docs/workspace-preflight.md)
 ### Switch branch in sicurezza
 
 PowerShell:
@@ -149,7 +174,6 @@ Git Bash:
 bash scripts/safe-switch-branch.sh fix/polls-vote-guard --create-from-main
 bash scripts/safe-switch-branch.sh chore/codex-onboarding-from-video
 ```
-
 ## Quality Gate su PR
 
 - CI GitHub Actions esegue:
