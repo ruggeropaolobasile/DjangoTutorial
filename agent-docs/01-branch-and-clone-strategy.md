@@ -30,3 +30,4 @@ Git Bash:
 ```bash
 bash scripts/safe-switch-branch.sh fix/example --create-from-main
 ```
+
