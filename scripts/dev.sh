@@ -5,6 +5,8 @@ HOST="${HOST:-127.0.0.1}"
 PORT="${PORT:-8000}"
 SKIP_INSTALL="${SKIP_INSTALL:-0}"
 SKIP_MIGRATE="${SKIP_MIGRATE:-0}"
+RESEED="${RESEED:-0}"
+SEED_PROFILE="${SEED_PROFILE:-mvp}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -36,6 +38,11 @@ cd "${PROJECT_DIR}"
 if [[ "${SKIP_MIGRATE}" != "1" ]]; then
   echo "Running migrations"
   "${VENV_PYTHON}" manage.py migrate --noinput
+fi
+
+if [[ "${RESEED}" == "1" ]]; then
+  echo "Reseeding demo data (profile: ${SEED_PROFILE})"
+  "${VENV_PYTHON}" manage.py reseed_demo_data --profile "${SEED_PROFILE}"
 fi
 
 echo "Starting development server on http://${HOST}:${PORT}/"

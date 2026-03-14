@@ -1,14 +1,14 @@
-{% load static %}
+﻿{% extends "polls/base.html" %}
 
-<link rel="stylesheet" href="{% static 'polls/style.css' %}">
+{% block title %}Create Poll{% endblock %}
 
-<section class="hero">
+{% block content %}
+<section class="panel fade-in">
+    <p class="eyebrow">New Poll</p>
     <h1>Create a New Poll</h1>
-    <p>Add a question and at least two choices.</p>
-</section>
+    <p class="hero-copy">Add a question and at least two distinct choices.</p>
 
-<section class="poll-list">
-    <form method="post">
+    <form method="post" class="stack-form">
         {% csrf_token %}
         {{ form.non_field_errors }}
 
@@ -21,7 +21,10 @@
         <small>{{ form.choices.help_text }}</small>
         {{ form.choices.errors }}
 
-        <input type="submit" value="Create Poll">
+        <div class="inline-actions">
+            <input class="button" type="submit" value="Create Poll">
+            <a class="button button-ghost" href="{% url 'polls:index' %}">Back to Polls</a>
+        </div>
     </form>
-    <p><a href="{% url 'polls:index' %}">Back to polls</a></p>
 </section>
+{% endblock %}
