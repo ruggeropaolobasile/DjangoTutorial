@@ -71,6 +71,19 @@ ruff format --check .
 - Se servono lavori paralleli, usare clone separati del repository.
 - Prima di cambiare branch: working tree pulito (`git status`) o stash nominato.
 
+## Session lock
+
+- Una chat/sessione agente vale per un solo clone del repository.
+- Il contesto canonico della sessione va fissato all'inizio con:
+  - `git rev-parse --show-toplevel`
+  - `git branch --show-current`
+  - `git rev-parse --short HEAD`
+  - `git status --short`
+- Quel contesto resta valido finche non viene rifatta una verifica esplicita.
+- Nessun cambio clone e ammesso implicitamente nella stessa chat.
+- Se emerge un contesto diverso tra chat, IDE e terminale, fa fede il terminale del clone attivo dopo la verifica dei comandi sopra.
+- Se serve lavorare su un clone diverso, aprire una nuova sessione/chat.
+
 ## Definition of Done
 
 1. Il comportamento richiesto e implementato.
@@ -110,6 +123,7 @@ ruff format --check .
 - Playbook task-specific: `agent-docs/09-task-specific-playbooks.md`
 - Codex config/profili: `agent-docs/10-codex-config-and-profiles.md`
 - Prompting best practices: `agent-docs/11-prompting-best-practices.md`
+- Session lock playbook: `agent-docs/12-session-lock.md`
 - Planning template: `agent-docs/PLANS.md`
 - ExecPlan template: `agent-docs/execplan-template.md`
 
