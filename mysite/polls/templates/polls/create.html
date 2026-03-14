@@ -1,0 +1,27 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'polls/style.css' %}">
+
+<section class="hero">
+    <h1>Create a New Poll</h1>
+    <p>Add a question and at least two choices.</p>
+</section>
+
+<section class="poll-list">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <label for="{{ form.question_text.id_for_label }}">{{ form.question_text.label }}</label>
+        {{ form.question_text }}
+        {{ form.question_text.errors }}
+
+        <label for="{{ form.choices.id_for_label }}">{{ form.choices.label }}</label>
+        {{ form.choices }}
+        <small>{{ form.choices.help_text }}</small>
+        {{ form.choices.errors }}
+
+        <input type="submit" value="Create Poll">
+    </form>
+    <p><a href="{% url 'polls:index' %}">Back to polls</a></p>
+</section>

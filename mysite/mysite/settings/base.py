@@ -18,12 +18,45 @@ from urllib.parse import parse_qs, urlparse
 from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+REPO_ROOT = BASE_DIR.parent
 TESTING = "test" in sys.argv
 
 
+def load_env_file(path: Path) -> None:
+    if not path.exists():
+        return
+
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if not key:
+            continue
+        value = value.strip().strip("'\"")
+        os.environ.setdefault(key, value)
+
+
+load_env_file(BASE_DIR / ".env")
+load_env_file(REPO_ROOT / ".env")
+
+
 def env_bool(name: str, default: bool = False) -> bool:
-    return os.getenv(name, str(default)).lower() in {"1", "true", "yes", "on"}
+    raw_value = os.getenv(name)
+    if raw_value is None:
+        return default
+
+    normalized = raw_value.strip().lower()
+    truthy = {"1", "true", "yes", "on"}
+    falsy = {"0", "false", "no", "off"}
+
+    if normalized in truthy:
+        return True
+    if normalized in falsy:
+        return False
+    return default
 
 
 def env_list(name: str, default: str = "") -> list[str]:
@@ -85,8 +118,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 ]
 
-if DEBUG:
-    INSTALLED_APPS.append("debug_toolbar")
+if DEBUG and not TESTING:
+    try:
+        import debug_toolbar  # noqa: F401
+    except ModuleNotFoundError:
+        pass
+    else:
+        INSTALLED_APPS.append("debug_toolbar")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -98,7 +136,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-if DEBUG:
+if DEBUG and "debug_toolbar" in INSTALLED_APPS:
     MIDDLEWARE.insert(1, "debug_toolbar.middleware.DebugToolbarMiddleware")
 else:
     MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
