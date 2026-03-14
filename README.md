@@ -30,6 +30,7 @@ Opzioni utili:
 ```powershell
 .\scripts\dev.ps1 -BindHost 0.0.0.0 -Port 8001 -SkipInstall
 .\scripts\dev.ps1 -SkipMigrate
+.\scripts\dev.ps1 -Reseed -SeedProfile mvp
 ```
 
 Se l'automazione browser si blocca su Chrome senza chiudere tutte le finestre:
@@ -46,6 +47,7 @@ Opzioni utili:
 ```bash
 HOST=0.0.0.0 PORT=8001 SKIP_INSTALL=1 bash scripts/dev.sh
 SKIP_MIGRATE=1 bash scripts/dev.sh
+RESEED=1 SEED_PROFILE=mvp bash scripts/dev.sh
 ```
 
 ### 1) Crea e attiva virtual environment
@@ -94,6 +96,20 @@ python manage.py runserver
 ```
 
 App disponibile su `http://127.0.0.1:8000/`.
+
+### Demo reseed per nuove feature
+
+Da `mysite/` con venv attivo:
+
+```bash
+python manage.py reseed_demo_data --profile mvp
+```
+
+Profili disponibili:
+
+- `core`: dataset minimo (5 poll) per flow essenziale
+- `mvp`: dataset consigliato (8 poll) per dashboard + MVP page
+- `full`: dataset esteso (10 poll) per test visual/ricerca
 
 ## Quality checks locali
 
@@ -201,12 +217,13 @@ Se usi piu agenti in parallelo, evita di farli lavorare sullo stesso clone.
 
 ### Onboarding docs
 
-- [`docs/onboarding/README.md`](docs/onboarding/README.md)
-- [`docs/onboarding/00-video-logical-map.md`](docs/onboarding/00-video-logical-map.md)
-- [`docs/onboarding/01-branch-and-clone-strategy.md`](docs/onboarding/01-branch-and-clone-strategy.md)
-- [`docs/onboarding/02-agents-hierarchy.md`](docs/onboarding/02-agents-hierarchy.md)
-- [`docs/onboarding/03-pr-ci-process.md`](docs/onboarding/03-pr-ci-process.md)
-- [`docs/onboarding/04-preflight-and-safe-switch.md`](docs/onboarding/04-preflight-and-safe-switch.md)
+- [`agent-docs/README.md`](agent-docs/README.md)
+- [`agent-docs/00-video-logical-map.md`](agent-docs/00-video-logical-map.md)
+- [`agent-docs/01-branch-and-clone-strategy.md`](agent-docs/01-branch-and-clone-strategy.md)
+- [`agent-docs/02-agents-hierarchy.md`](agent-docs/02-agents-hierarchy.md)
+- [`agent-docs/03-pr-ci-process.md`](agent-docs/03-pr-ci-process.md)
+- [`agent-docs/04-preflight-and-safe-switch.md`](agent-docs/04-preflight-and-safe-switch.md)
+- [`agent-docs/05-mcp-github-starter.md`](agent-docs/05-mcp-github-starter.md)
 
 ## Dipendenze
 
@@ -239,3 +256,5 @@ Se usi piu agenti in parallelo, evita di farli lavorare sullo stesso clone.
 
 - `/healthz/` ritorna `200` se app+DB sono ok, `503` se DB non raggiungibile.
 - Il piano free Render puo avere cold start dopo inattivita.
+
+

@@ -2,7 +2,10 @@ param(
     [string]$BindHost = "127.0.0.1",
     [int]$Port = 8000,
     [switch]$SkipInstall,
-    [switch]$SkipMigrate
+    [switch]$SkipMigrate,
+    [switch]$Reseed,
+    [ValidateSet("core", "mvp", "full")]
+    [string]$SeedProfile = "mvp"
 )
 
 $ErrorActionPreference = "Stop"
@@ -41,6 +44,11 @@ try {
     if (-not $SkipMigrate) {
         Write-Host "Running migrations"
         & $venvPython manage.py migrate --noinput
+    }
+
+    if ($Reseed) {
+        Write-Host "Reseeding demo data (profile: $SeedProfile)"
+        & $venvPython manage.py reseed_demo_data --profile $SeedProfile
     }
 
     Write-Host "Starting development server on http://$BindHost`:$Port/"

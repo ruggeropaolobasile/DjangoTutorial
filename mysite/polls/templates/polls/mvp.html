@@ -1,0 +1,79 @@
+{% extends "polls/base.html" %}
+
+{% block title %}Decision Loop MVP{% endblock %}
+
+{% block content %}
+<section class="hero fade-in">
+    <p class="eyebrow">MVP Concept</p>
+    <h1>Decision Loop for Polling Teams</h1>
+    <p class="hero-copy">
+        A visual prototype that turns poll responses into structured decisions, ownership and follow-up.
+    </p>
+    <div class="hero-actions">
+        <a class="button" href="{% url 'polls:create' %}">Create Decision Poll</a>
+        <a class="button button-secondary" href="{% url 'polls:index' %}">Open Dashboard</a>
+    </div>
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <h2>Top-Level Metrics</h2>
+    </div>
+    <div class="mvp-kpi-grid">
+        <article class="stat-card">
+            <p>Active Polls</p>
+            <strong>{{ mvp_metrics.total_polls }}</strong>
+        </article>
+        <article class="stat-card">
+            <p>Total Votes</p>
+            <strong>{{ mvp_metrics.total_votes }}</strong>
+        </article>
+        <article class="stat-card">
+            <p>Activation Rate</p>
+            <strong>{{ mvp_metrics.activation_rate }}%</strong>
+        </article>
+        <article class="stat-card">
+            <p>Pending Actions</p>
+            <strong>{{ mvp_metrics.pending_actions }}</strong>
+        </article>
+    </div>
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <h2>Decision Pipeline</h2>
+    </div>
+    <div class="mvp-stage-grid">
+        {% for stage in mvp_stages %}
+            <article class="mvp-stage">
+                <p>{{ stage.name }}</p>
+                <strong>{{ stage.value }}</strong>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <h2>Opportunity Board</h2>
+    </div>
+    {% if mvp_polls %}
+        <ul class="mvp-board">
+            {% for poll in mvp_polls %}
+                <li>
+                    <div class="result-copy">
+                        <span>{{ poll.question_text }}</span>
+                        <small>{{ poll.total_votes }} vote{{ poll.total_votes|pluralize }}</small>
+                    </div>
+                    <div class="result-meter" role="presentation">
+                        <div class="result-meter-fill" style="width: {{ poll.vote_percent }}%"></div>
+                    </div>
+                    <a class="mini-link" href="{% url 'polls:detail' poll.id %}">Open poll</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty-state">No polls available yet. Create one to populate this MVP board.</p>
+    {% endif %}
+</section>
+{% endblock %}

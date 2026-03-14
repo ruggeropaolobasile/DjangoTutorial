@@ -1,9 +1,40 @@
-<h1>{{ question.question_text }}</h1>
+﻿{% extends "polls/base.html" %}
 
-<ul>
-{% for choice in question.choice_set.all %}
-    <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
-{% endfor %}
-</ul>
+{% block title %}Results{% endblock %}
 
-<a href="{% url 'polls:detail' question.id %}">Vote again?</a>
+{% block content %}
+<section class="panel fade-in">
+    <p class="eyebrow">Results</p>
+    <h1>{{ question.question_text }}</h1>
+    <p class="hero-copy">Total votes collected: <strong>{{ total_votes }}</strong></p>
+
+    <ul class="result-list">
+    {% for choice in choices %}
+        <li>
+            <div class="result-copy">
+                <span>{{ choice.choice_text }}</span>
+                <small>
+                    {% if total_votes %}
+                        {% widthratio choice.votes total_votes 100 %}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                </small>
+            </div>
+            <div class="result-meter" role="presentation">
+                <div
+                    class="result-meter-fill"
+                    style="width:{% if total_votes %}{% widthratio choice.votes total_votes 100 %}{% else %}0{% endif %}%"
+                ></div>
+            </div>
+            <strong>{{ choice.votes }} vote{{ choice.votes|pluralize }}</strong>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <div class="inline-actions">
+        <a class="button" href="{% url 'polls:detail' question.id %}">Vote Again</a>
+        <a class="button button-ghost" href="{% url 'polls:index' %}">Back to Polls</a>
+    </div>
+</section>
+{% endblock %}
