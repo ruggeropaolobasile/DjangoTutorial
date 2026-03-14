@@ -12,6 +12,8 @@ Percorso consigliato (in ordine):
 8. [`07-unlock-agentic-loops.md`](07-unlock-agentic-loops.md)
 9. [`08-real-mistakes-and-gotchas.md`](08-real-mistakes-and-gotchas.md)
 10. [`09-task-specific-playbooks.md`](09-task-specific-playbooks.md)
+11. [`PLANS.md`](PLANS.md)
+12. [`execplan-template.md`](execplan-template.md)
 
 ## Checklist rapida (done)
 

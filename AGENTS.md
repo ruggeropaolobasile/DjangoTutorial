@@ -81,6 +81,8 @@ ruff format --check .
 
 - Per task non banali, seguire un `.md` dedicato invece di sovraccaricare questo file.
 - `AGENTS.md` resta corto: regole globali qui, dettagli operativi nei playbook task-specific.
+- Per task grandi/multi-step, usare `agent-docs/PLANS.md` come documento vivo.
+- Ogni ExecPlan deve usare il template `agent-docs/execplan-template.md`.
 
 ## Dove trovare i dettagli
 
@@ -93,6 +95,8 @@ ruff format --check .
 - Agentic loops: `agent-docs/07-unlock-agentic-loops.md`
 - Gotchas e miglioramento continuo: `agent-docs/08-real-mistakes-and-gotchas.md`
 - Playbook task-specific: `agent-docs/09-task-specific-playbooks.md`
+- Planning template: `agent-docs/PLANS.md`
+- ExecPlan template: `agent-docs/execplan-template.md`
 
 ## Formato risposta agente
 
