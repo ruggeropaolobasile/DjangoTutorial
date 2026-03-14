@@ -17,6 +17,13 @@ $venvDir = Join-Path $projectDir ".venv"
 $venvPython = Join-Path $venvDir "Scripts\python.exe"
 $envFile = Join-Path $repoRoot ".env"
 $envExampleFile = Join-Path $repoRoot ".env.example"
+$preflightScript = Join-Path $scriptDir "workspace-preflight.ps1"
+
+if (Test-Path $preflightScript) {
+    Write-Host "Workspace identity preflight"
+    & $preflightScript -WorkspacePath $repoRoot
+    Write-Host ""
+}
 
 if (-not (Test-Path $venvPython)) {
     Write-Host "Creating virtualenv in $venvDir"

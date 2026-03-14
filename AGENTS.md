@@ -28,6 +28,12 @@ Da root:
 .\scripts\dev.ps1
 ```
 
+Preflight obbligatorio prima di modifiche o branch switch:
+
+```powershell
+.\scripts\workspace-preflight.ps1
+```
+
 Da `mysite/` con virtualenv attivo:
 
 ```bash
@@ -45,6 +51,7 @@ ruff format --check .
 - Non modificare `db.sqlite3` salvo richiesta esplicita.
 - Se serve una migration: creare migration + verificare `python manage.py migrate`.
 - Mantenere compatibilita con configurazione `DJANGO_ENV` e variabili ambiente esistenti.
+- Non assumere che Explorer VS Code, terminale integrato e sessione agente puntino alla stessa root: verificare sempre `repo_root`, `branch` e `role` con `scripts/workspace-preflight.ps1`.
 
 ## Definition of Done
 
