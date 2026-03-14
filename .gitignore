@@ -27,6 +27,8 @@ media/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+.playwright-cli/
+.tmp-playwright/
 htmlcov/
 .coverage
 .coverage.*
