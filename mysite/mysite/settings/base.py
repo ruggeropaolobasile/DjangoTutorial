@@ -182,7 +182,9 @@ def database_config() -> dict:
 
         query_options = parse_qs(parsed.query)
         options = {
-            key: values[-1] for key, values in query_options.items() if values and key in {"sslmode", "connect_timeout"}
+            key: values[-1]
+            for key, values in query_options.items()
+            if values and key in {"sslmode", "connect_timeout"}
         }
 
         return {

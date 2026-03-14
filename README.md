@@ -32,6 +32,11 @@ Opzioni utili:
 .\scripts\dev.ps1 -SkipMigrate
 ```
 
+Se l'automazione browser si blocca su Chrome senza chiudere tutte le finestre:
+```powershell
+.\scripts\reset-playwright-chrome.ps1
+```
+
 Git Bash:
 ```bash
 bash scripts/dev.sh
@@ -107,6 +112,26 @@ ruff format --check .
 2. Esegui test/check in locale.
 3. Fai PR o merge su `main` solo quando e stabile.
 4. Push su `main` -> deploy automatico Render.
+
+## Workflow Codex (dal video, adattato al repo)
+
+Questo repository include un file [`AGENTS.md`](AGENTS.md) per dare a Codex contesto stabile su struttura, comandi e vincoli.
+
+Prompt starter consigliati:
+
+```text
+Implementa <feature> nell'app polls con cambi minimi.
+Esegui manage.py check e riporta file toccati + motivazione.
+```
+
+```text
+Correggi il bug <descrizione> e aggiungi un test di regressione.
+Non modificare file generati o non pertinenti.
+```
+
+```text
+Fai review del diff corrente, concentrati su bug/regressioni e test mancanti.
+```
 
 ## Dipendenze
 

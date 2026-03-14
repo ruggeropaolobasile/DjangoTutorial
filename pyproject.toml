@@ -7,10 +7,14 @@ exclude = [
   "venv",
   "__pycache__",
   "mysite/staticfiles",
+  "mysite/polls/migrations",
 ]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"mysite/mysite/tests.py" = ["E501"]
 
 [tool.ruff.format]
 quote-style = "double"
