@@ -28,16 +28,10 @@ jobs:
 
       - name: Django check
         working-directory: mysite
-        env:
-          DJANGO_ENV: local
-          DEBUG: "True"
         run: python manage.py check
 
       - name: Run tests
         working-directory: mysite
-        env:
-          DJANGO_ENV: local
-          DEBUG: "True"
         run: python manage.py test
 
       - name: Ruff lint
