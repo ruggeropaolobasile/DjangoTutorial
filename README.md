@@ -217,13 +217,13 @@ Se usi piu agenti in parallelo, evita di farli lavorare sullo stesso clone.
 
 ### Onboarding docs
 
-- [`docs/onboarding/README.md`](docs/onboarding/README.md)
-- [`docs/onboarding/00-video-logical-map.md`](docs/onboarding/00-video-logical-map.md)
-- [`docs/onboarding/01-branch-and-clone-strategy.md`](docs/onboarding/01-branch-and-clone-strategy.md)
-- [`docs/onboarding/02-agents-hierarchy.md`](docs/onboarding/02-agents-hierarchy.md)
-- [`docs/onboarding/03-pr-ci-process.md`](docs/onboarding/03-pr-ci-process.md)
-- [`docs/onboarding/04-preflight-and-safe-switch.md`](docs/onboarding/04-preflight-and-safe-switch.md)
-- [`docs/onboarding/05-mcp-github-starter.md`](docs/onboarding/05-mcp-github-starter.md)
+- [`agent-docs/README.md`](agent-docs/README.md)
+- [`agent-docs/00-video-logical-map.md`](agent-docs/00-video-logical-map.md)
+- [`agent-docs/01-branch-and-clone-strategy.md`](agent-docs/01-branch-and-clone-strategy.md)
+- [`agent-docs/02-agents-hierarchy.md`](agent-docs/02-agents-hierarchy.md)
+- [`agent-docs/03-pr-ci-process.md`](agent-docs/03-pr-ci-process.md)
+- [`agent-docs/04-preflight-and-safe-switch.md`](agent-docs/04-preflight-and-safe-switch.md)
+- [`agent-docs/05-mcp-github-starter.md`](agent-docs/05-mcp-github-starter.md)
 
 ## Dipendenze
 
@@ -256,3 +256,5 @@ Se usi piu agenti in parallelo, evita di farli lavorare sullo stesso clone.
 
 - `/healthz/` ritorna `200` se app+DB sono ok, `503` se DB non raggiungibile.
 - Il piano free Render puo avere cold start dopo inattivita.
+
+

@@ -17,8 +17,9 @@ Obiettivo: aggiungere un MCP utile al tuo flusso issue/PR senza complicare il pr
 
 1. Crea un token GitHub con scope minimi necessari (repo/PR/issue in base al tuo uso).
 2. Esporta il token in env var locale (`GITHUB_TOKEN`).
-3. Usa il template in `docs/onboarding/examples/codex-mcp-github.example.toml`.
+3. Usa il template in `agent-docs/examples/codex-mcp-github.example.toml`.
 
 ## Nota pratica
 
 Per questo progetto l'MCP GitHub e opzionale: il flusso base resta funzionante anche senza MCP.
+

@@ -9,6 +9,9 @@ Percorso consigliato (in ordine):
 5. [`04-preflight-and-safe-switch.md`](04-preflight-and-safe-switch.md)
 6. [`05-mcp-github-starter.md`](05-mcp-github-starter.md)
 7. [`06-video-step-04-17-to-08-12.md`](06-video-step-04-17-to-08-12.md)
+8. [`07-unlock-agentic-loops.md`](07-unlock-agentic-loops.md)
+9. [`08-real-mistakes-and-gotchas.md`](08-real-mistakes-and-gotchas.md)
+10. [`09-task-specific-playbooks.md`](09-task-specific-playbooks.md)
 
 ## Checklist rapida (done)
 

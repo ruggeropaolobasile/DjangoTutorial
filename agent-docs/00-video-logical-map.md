@@ -79,3 +79,4 @@ Fonte: `Getting started with Codex` (`px7XlbYgk7I`), analizzato con trascrizione
 1. Consolidare PR di onboarding/processo (`chore/codex-onboarding-from-video`).
 2. Aprire una task applicativa reale su `fix/...` o `feature/...` usando i template prompt.
 3. Eventuale estensione MCP in base agli strumenti reali del team.
+
