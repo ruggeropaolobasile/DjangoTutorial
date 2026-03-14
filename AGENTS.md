@@ -124,6 +124,7 @@ ruff format --check .
 - Codex config/profili: `agent-docs/10-codex-config-and-profiles.md`
 - Prompting best practices: `agent-docs/11-prompting-best-practices.md`
 - Session lock playbook: `agent-docs/12-session-lock.md`
+- Project backlog flow: `agent-docs/13-project-backlog-flow.md`
 - Planning template: `agent-docs/PLANS.md`
 - ExecPlan template: `agent-docs/execplan-template.md`
 
