@@ -19,6 +19,30 @@ La selezione settings avviene con `DJANGO_ENV`:
 
 ## Sviluppo locale (best practice)
 
+### Runtime sviluppo (1 comando)
+
+PowerShell:
+```powershell
+.\scripts\dev.ps1
+```
+
+Opzioni utili:
+```powershell
+.\scripts\dev.ps1 -BindHost 0.0.0.0 -Port 8001 -SkipInstall
+.\scripts\dev.ps1 -SkipMigrate
+```
+
+Git Bash:
+```bash
+bash scripts/dev.sh
+```
+
+Opzioni utili:
+```bash
+HOST=0.0.0.0 PORT=8001 SKIP_INSTALL=1 bash scripts/dev.sh
+SKIP_MIGRATE=1 bash scripts/dev.sh
+```
+
 ### 1) Crea e attiva virtual environment
 
 PowerShell:
