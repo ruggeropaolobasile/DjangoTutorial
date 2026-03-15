@@ -329,8 +329,8 @@ class ProfileViewTests(TestCase):
     def test_profile_requires_authentication(self):
         response = self.client.get(reverse("polls:profile"))
 
-        self.assertEqual(response.status_code, 302)
-        self.assertIn(reverse("login"), response.url)
+        expected_redirect = f"{reverse('login')}?next={reverse('polls:profile')}"
+        self.assertRedirects(response, expected_redirect)
 
     def test_profile_shows_empty_state_when_user_has_no_owned_polls(self):
         self.client.login(username="demo-user", password="safe-password-123")
