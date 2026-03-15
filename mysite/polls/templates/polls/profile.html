@@ -13,6 +13,22 @@
 
 <section class="panel fade-in">
     <div class="panel-header">
+        <h2>Profile Summary</h2>
+    </div>
+    <div class="profile-kpi-grid">
+        <article class="stat-card">
+            <p>Polls Created</p>
+            <strong>{{ owned_poll_count }}</strong>
+        </article>
+        <article class="stat-card">
+            <p>Total Votes Received</p>
+            <strong>{{ owned_vote_count }}</strong>
+        </article>
+    </div>
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
         <div>
             <h2>Your Polls</h2>
             <p class="section-meta">{{ owned_poll_count }} owned poll{{ owned_poll_count|pluralize }}</p>

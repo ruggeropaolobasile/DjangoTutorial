@@ -382,6 +382,37 @@ class ProfileViewTests(TestCase):
         self.assertNotContains(response, "Other roadmap")
         self.assertEqual(response.context["owned_polls"][0], owned)
 
+    def test_profile_shows_owned_poll_summary_metrics(self):
+        first_poll = Question.objects.create(
+            question_text="First owned roadmap",
+            pub_date=timezone.now(),
+            owner=self.user,
+        )
+        second_poll = Question.objects.create(
+            question_text="Second owned roadmap",
+            pub_date=timezone.now(),
+            owner=self.user,
+        )
+        Question.objects.create(
+            question_text="Other user roadmap",
+            pub_date=timezone.now(),
+            owner=self.other_user,
+        )
+        Choice.objects.create(question=first_poll, choice_text="Ship", votes=4)
+        Choice.objects.create(question=first_poll, choice_text="Wait", votes=1)
+        Choice.objects.create(question=second_poll, choice_text="Expand", votes=3)
+        self.client.login(username="demo-user", password="safe-password-123")
+
+        response = self.client.get(reverse("polls:profile"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["owned_poll_count"], 2)
+        self.assertEqual(response.context["owned_vote_count"], 8)
+        self.assertContains(response, "Polls Created")
+        self.assertContains(response, "Total Votes Received")
+        self.assertContains(response, "<strong>2</strong>", html=True)
+        self.assertContains(response, "<strong>8</strong>", html=True)
+
 
 class MvpViewTests(TestCase):
     def test_mvp_page_renders(self):

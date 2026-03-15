@@ -276,8 +276,9 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        now = timezone.now()
         owned_polls = list(
-            Question.objects.filter(owner=self.request.user, pub_date__lte=timezone.now())
+            Question.objects.filter(owner=self.request.user, pub_date__lte=now)
             .annotate(total_votes=Sum("choice__votes"))
             .order_by("-pub_date")
         )
@@ -287,6 +288,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
         context["owned_polls"] = owned_polls
         context["owned_poll_count"] = len(owned_polls)
+        context["owned_vote_count"] = sum(poll.total_votes for poll in owned_polls)
         return context
 
 
