@@ -18,6 +18,7 @@ Percorso consigliato (in ordine):
 14. [`11-prompting-best-practices.md`](11-prompting-best-practices.md)
 15. [`12-session-lock.md`](12-session-lock.md)
 16. [`13-project-backlog-flow.md`](13-project-backlog-flow.md)
+17. [`14-autonomous-session-runner.md`](14-autonomous-session-runner.md)
 
 ## Checklist rapida (done)
 
@@ -47,3 +48,4 @@ Regola di selezione:
 ## Handoff utile
 
 - `agent-docs/issues/video-session-handoff.md`: stato minimo per riaprire una nuova sessione sul clone video corretto.
+- `agent-docs/14-autonomous-session-runner.md`: runner locale per eseguire backlog GitHub Project in loop con `codex exec`.
