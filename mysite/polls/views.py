@@ -38,6 +38,12 @@ STARTER_TEMPLATES = {
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
     context_object_name = "latest_question_list"
+    STATUS_LABELS = {
+        "all": "All statuses",
+        "ready": "Ready",
+        "active": "Active",
+        "cold": "Cold",
+    }
 
     def get_queryset(self):
         """
@@ -144,6 +150,33 @@ class IndexView(generic.ListView):
             ]
             if chip
         ]
+        has_custom_sort = context["sort_key"] != "recent"
+        has_status_filter = context["status_key"] != "all"
+        has_active_filters = bool(context["search_term"] or has_custom_sort or has_status_filter)
+        empty_state_title = "No polls are available."
+        empty_state_helper = "Create your first one to get started."
+
+        if has_active_filters:
+            if context["search_term"] and has_status_filter:
+                empty_state_title = (
+                    f'No polls match {context["search_term"]} in '
+                    f'{self.STATUS_LABELS[context["status_key"]].lower()}.'
+                )
+            elif context["search_term"]:
+                empty_state_title = f"No polls match {context['search_term']}."
+            elif has_status_filter:
+                empty_state_title = (
+                    f'No polls are currently in the '
+                    f'{self.STATUS_LABELS[context["status_key"]].lower()} status.'
+                )
+            else:
+                empty_state_title = "No polls are available for this view."
+
+            empty_state_helper = "Try a different search or remove filters."
+
+        context["has_active_filters"] = has_active_filters
+        context["empty_state_title"] = empty_state_title
+        context["empty_state_helper"] = empty_state_helper
         context["visible_count"] = len(latest_question_list)
         context["poll_markdown_items"] = [
             {"question_text": question.question_text} for question in latest_question_list

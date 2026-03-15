@@ -126,6 +126,15 @@ class QuestionIndexViewTests(TestCase):
 
         self.assertQuerySetEqual(response.context["latest_question_list"], [matching])
 
+    def test_search_empty_state_is_contextual_when_no_results_match(self):
+        create_question(question_text="Release planning poll", days=-1)
+
+        response = self.client.get(reverse("polls:index"), {"q": "finance"})
+
+        self.assertQuerySetEqual(response.context["latest_question_list"], [])
+        self.assertContains(response, "No polls match finance.")
+        self.assertContains(response, "Try a different search or remove filters.")
+
     def test_popular_sort_orders_by_votes(self):
         popular = create_question(question_text="Popular poll", days=-1)
         less_popular = create_question(question_text="Less popular poll", days=-1)
@@ -145,6 +154,16 @@ class QuestionIndexViewTests(TestCase):
         response = self.client.get(reverse("polls:index"), {"status": "ready"})
 
         self.assertQuerySetEqual(response.context["latest_question_list"], [ready])
+
+    def test_status_empty_state_is_contextual_when_filter_has_no_results(self):
+        poll = create_question(question_text="Fresh poll", days=-1)
+        Choice.objects.create(question=poll, choice_text="A", votes=1)
+
+        response = self.client.get(reverse("polls:index"), {"status": "ready"})
+
+        self.assertQuerySetEqual(response.context["latest_question_list"], [])
+        self.assertContains(response, "No polls are currently in the ready status.")
+        self.assertContains(response, "Try a different search or remove filters.")
 
     def test_dashboard_shows_poll_status_summary(self):
         question = create_question(question_text="Delivery retro", days=-1)

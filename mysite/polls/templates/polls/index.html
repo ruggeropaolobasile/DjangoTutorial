@@ -184,12 +184,8 @@
         </ul>
     {% else %}
         <p class="empty-state">
-            No polls are available.
-            {% if request.GET.q %}
-                Try a different search or remove filters.
-            {% else %}
-                Create your first one to get started.
-            {% endif %}
+            {{ empty_state_title }}
+            {{ empty_state_helper }}
         </p>
     {% endif %}
 </section>
