@@ -6,7 +6,7 @@
 <section class="panel fade-in">
     <p class="eyebrow">Vote</p>
     <h1>{{ question.question_text }}</h1>
-    <p class="hero-copy">Published {{ question.pub_date|date:"M d, Y H:i" }}. Choose one option and submit.</p>
+    <p class="hero-copy">Created at {{ question.pub_date|date:"F j, Y \\a\\t H:i" }}. Choose one option and submit.</p>
     <div class="detail-meta">
         <article class="insight-card">
             <p>Options</p>

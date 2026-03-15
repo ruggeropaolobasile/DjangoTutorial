@@ -4,6 +4,7 @@ from . import views
 
 app_name = "polls"
 urlpatterns = [
+    path("automation/", views.AutomationView.as_view(), name="automation"),
     path("", views.IndexView.as_view(), name="index"),
     path("briefing/", views.BriefingView.as_view(), name="briefing"),
     path("briefing/export/", views.BriefingExportView.as_view(), name="briefing_export"),

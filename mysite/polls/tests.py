@@ -250,6 +250,7 @@ class QuestionDetailViewTests(TestCase):
         url = reverse("polls:detail", args=(past_question.id,))
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
+        self.assertContains(response, "Created at")
         self.assertContains(response, "Related Polls")
         self.assertContains(response, "Copy Poll Link")
 
@@ -333,6 +334,7 @@ class AuthFlowTests(TestCase):
         response = self.client.get(reverse("polls:index"))
 
         self.assertContains(response, "Sign in")
+        self.assertContains(response, "Automation")
         self.assertNotContains(response, "Sign out")
         self.assertNotContains(response, "Profile")
         self.assertNotContains(response, reverse("polls:profile"))
@@ -450,6 +452,28 @@ class ProfileViewTests(TestCase):
         self.assertContains(response, "Total Votes Received")
         self.assertContains(response, "<strong>2</strong>", html=True)
         self.assertContains(response, "<strong>8</strong>", html=True)
+
+
+class AutomationViewTests(TestCase):
+    def test_automation_page_renders_runtime_snapshot(self):
+        response = self.client.get(reverse("polls:automation"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Automation Control Room")
+        self.assertContains(response, "Runtime Snapshot")
+        self.assertContains(response, r".\scripts\autonomous-session.ps1 -CommitOnDone")
+        self.assertContains(response, "Smoke Poll")
+
+    def test_automation_page_links_to_smoke_poll_when_available(self):
+        smoke_poll = Question.objects.create(
+            question_text="Smoke flow: can we create and vote on a poll?",
+            pub_date=timezone.now(),
+        )
+
+        response = self.client.get(reverse("polls:automation"))
+
+        self.assertContains(response, smoke_poll.question_text)
+        self.assertContains(response, reverse("polls:detail", args=(smoke_poll.id,)))
 
 
 class MvpViewTests(TestCase):

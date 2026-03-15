@@ -1,5 +1,6 @@
 from urllib.parse import urlencode
 
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.db.models import Sum
@@ -377,6 +378,66 @@ class ShowcaseView(TemplateView):
         context["starter_templates"] = [
             {"slug": slug, **template_data} for slug, template_data in STARTER_TEMPLATES.items()
         ]
+        return context
+
+
+class AutomationView(TemplateView):
+    template_name = "polls/automation.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        smoke_question_text = "Smoke flow: can we create and vote on a poll?"
+        user_model = get_user_model()
+        published_polls = Question.objects.filter(pub_date__lte=timezone.now())
+        smoke_user_exists = user_model.objects.filter(username="demo-user").exists()
+        smoke_poll = (
+            Question.objects.filter(question_text=smoke_question_text)
+            .order_by("-pub_date")
+            .first()
+        )
+
+        context["automation_metrics"] = {
+            "published_poll_count": published_polls.count(),
+            "smoke_user_ready": smoke_user_exists,
+            "smoke_poll_ready": bool(smoke_poll),
+            "insights_ready": published_polls.exists(),
+        }
+        context["automation_lanes"] = [
+            {
+                "title": "Autonomous runner",
+                "body": (
+                    "Uses codex exec item-by-item from the GitHub Project and only keeps going "
+                    "when preflight stays green."
+                ),
+            },
+            {
+                "title": "Browser smoke",
+                "body": (
+                    "Prepares a deterministic login/create/vote/results flow so Playwright can "
+                    "validate the product slice quickly."
+                ),
+            },
+            {
+                "title": "Operator review",
+                "body": (
+                    "Lets you verify backlog, latest commits and local checks before relaunching "
+                    "automation."
+                ),
+            },
+        ]
+        context["automation_commands"] = [
+            r".\scripts\session-context.ps1",
+            r".\scripts\preflight.ps1",
+            r".\scripts\playwright-smoke-setup.ps1",
+            r".\scripts\autonomous-session.ps1 -CommitOnDone",
+        ]
+        context["automation_checklist"] = [
+            "Working tree clean before starting the runner",
+            "Backlog has enough Todo items with Priority and Size",
+            "Preflight is green on the active branch",
+            "Smoke user and smoke poll are ready for browser checks",
+        ]
+        context["smoke_poll"] = smoke_poll
         return context
 
 
