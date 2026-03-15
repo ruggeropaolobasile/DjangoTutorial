@@ -7,6 +7,9 @@
     <p class="eyebrow">Results</p>
     <h1>{{ question.question_text }}</h1>
     <p class="hero-copy">Total votes collected: <strong>{{ total_votes }}</strong></p>
+    {% if total_votes == 0 %}
+        <p class="empty-state">No votes yet. Share this poll to collect the first response.</p>
+    {% endif %}
     <div class="detail-meta">
         <article class="insight-card">
             <p>Leading Choice</p>

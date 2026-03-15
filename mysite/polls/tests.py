@@ -445,6 +445,18 @@ class MvpViewTests(TestCase):
 
 
 class ResultsViewTests(TestCase):
+    def test_results_show_zero_vote_empty_state(self):
+        poll = create_question(question_text="Quarterly focus", days=-1)
+        Choice.objects.create(question=poll, choice_text="Automation", votes=0)
+        Choice.objects.create(question=poll, choice_text="Reporting", votes=0)
+
+        response = self.client.get(reverse("polls:results", args=(poll.id,)))
+
+        self.assertContains(
+            response,
+            "No votes yet. Share this poll to collect the first response.",
+        )
+
     def test_results_show_lead_margin_and_runner_up(self):
         poll = create_question(question_text="Quarterly focus", days=-1)
         Choice.objects.create(question=poll, choice_text="Automation", votes=7)
