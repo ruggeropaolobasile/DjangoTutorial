@@ -1,0 +1,51 @@
+{% extends "polls/base.html" %}
+
+{% block title %}Your Profile{% endblock %}
+
+{% block content %}
+<section class="hero fade-in">
+    <p class="eyebrow">Profile</p>
+    <h1>{{ request.user.username }}</h1>
+    <p class="hero-copy">
+        Review the polls you own and launch the next decision when the queue is empty.
+    </p>
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <div>
+            <h2>Your Polls</h2>
+            <p class="section-meta">{{ owned_poll_count }} owned poll{{ owned_poll_count|pluralize }}</p>
+        </div>
+        <a class="button" href="{% url 'polls:create' %}">Create Poll</a>
+    </div>
+    {% if owned_polls %}
+        <ul class="poll-list">
+        {% for poll in owned_polls %}
+            <li>
+                <a href="{% url 'polls:detail' poll.id %}">
+                    {{ poll.question_text }}
+                    <small class="muted-meta">
+                        Published {{ poll.pub_date|date:"M d, Y H:i" }} - {{ poll.total_votes }} vote{{ poll.total_votes|pluralize }}
+                    </small>
+                </a>
+                <span class="poll-status {% if poll.total_votes < 3 %}poll-status-warning{% else %}poll-status-good{% endif %}">
+                    {% if poll.total_votes < 3 %}Needs traction{% else %}Healthy{% endif %}
+                </span>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <div class="feature-callout">
+            <p class="eyebrow">No owned polls yet</p>
+            <h3>Start your first poll</h3>
+            <p class="hero-copy">
+                You have not created any polls yet. Create one now to collect feedback and track the decision here.
+            </p>
+            <div class="inline-actions">
+                <a class="button" href="{% url 'polls:create' %}">Create Your First Poll</a>
+            </div>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

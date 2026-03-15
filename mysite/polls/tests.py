@@ -238,6 +238,7 @@ class PollCreateViewTests(TestCase):
         self.assertEqual(Question.objects.count(), 1)
         question = Question.objects.get()
         self.assertEqual(question.question_text, "What should we build next?")
+        self.assertEqual(question.owner, self.user)
         self.assertEqual(question.choice_set.count(), 3)
         self.assertRedirects(response, reverse("polls:detail", args=(question.id,)))
 
@@ -287,6 +288,7 @@ class AuthFlowTests(TestCase):
         follow_up = self.client.get(reverse("polls:index"))
         self.assertContains(follow_up, "Signed in as demo-user")
         self.assertContains(follow_up, "Sign out")
+        self.assertContains(follow_up, reverse("polls:profile"))
 
     def test_logout_redirects_to_index(self):
         self.client.login(username="demo-user", password="safe-password-123")
@@ -308,6 +310,55 @@ class SurprisePollViewTests(TestCase):
         question = create_question(question_text="Random target", days=-1)
         response = self.client.get(reverse("polls:surprise"))
         self.assertRedirects(response, reverse("polls:detail", args=(question.id,)))
+
+
+class ProfileViewTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="demo-user",
+            password="safe-password-123",
+        )
+        self.other_user = get_user_model().objects.create_user(
+            username="other-user",
+            password="safe-password-123",
+        )
+
+    def test_profile_requires_authentication(self):
+        response = self.client.get(reverse("polls:profile"))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("login"), response.url)
+
+    def test_profile_shows_empty_state_when_user_has_no_owned_polls(self):
+        self.client.login(username="demo-user", password="safe-password-123")
+
+        response = self.client.get(reverse("polls:profile"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No owned polls yet")
+        self.assertContains(response, "Create Your First Poll")
+        self.assertContains(response, reverse("polls:create"))
+
+    def test_profile_lists_only_owned_polls(self):
+        owned = Question.objects.create(
+            question_text="Owned roadmap",
+            pub_date=timezone.now(),
+            owner=self.user,
+        )
+        other = Question.objects.create(
+            question_text="Other roadmap",
+            pub_date=timezone.now(),
+            owner=self.other_user,
+        )
+        Choice.objects.create(question=owned, choice_text="Ship", votes=4)
+        Choice.objects.create(question=other, choice_text="Wait", votes=2)
+        self.client.login(username="demo-user", password="safe-password-123")
+
+        response = self.client.get(reverse("polls:profile"))
+
+        self.assertContains(response, "Owned roadmap")
+        self.assertNotContains(response, "Other roadmap")
+        self.assertEqual(response.context["owned_polls"][0], owned)
 
 
 class MvpViewTests(TestCase):

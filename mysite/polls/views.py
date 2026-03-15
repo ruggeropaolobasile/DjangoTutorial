@@ -121,8 +121,7 @@ class IndexView(generic.ListView):
             },
         ]
         context["starter_templates"] = [
-            {"slug": slug, **template_data}
-            for slug, template_data in STARTER_TEMPLATES.items()
+            {"slug": slug, **template_data} for slug, template_data in STARTER_TEMPLATES.items()
         ]
         context["filter_chips"] = [
             chip
@@ -147,8 +146,7 @@ class IndexView(generic.ListView):
         ]
         context["visible_count"] = len(latest_question_list)
         context["poll_markdown_items"] = [
-            {"question_text": question.question_text}
-            for question in latest_question_list
+            {"question_text": question.question_text} for question in latest_question_list
         ]
         context["latest_question_list"] = latest_question_list
         return context
@@ -218,8 +216,7 @@ class CreatePollView(LoginRequiredMixin, generic.FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["starter_templates"] = [
-            {"slug": slug, **template_data}
-            for slug, template_data in STARTER_TEMPLATES.items()
+            {"slug": slug, **template_data} for slug, template_data in STARTER_TEMPLATES.items()
         ]
         selected_template = self.request.GET.get("template", "").strip().lower()
         context["selected_template"] = selected_template
@@ -230,6 +227,7 @@ class CreatePollView(LoginRequiredMixin, generic.FormView):
             question = Question.objects.create(
                 question_text=form.cleaned_data["question_text"],
                 pub_date=timezone.now(),
+                owner=self.request.user,
             )
             Choice.objects.bulk_create(
                 [
@@ -238,6 +236,25 @@ class CreatePollView(LoginRequiredMixin, generic.FormView):
                 ]
             )
         return HttpResponseRedirect(reverse("polls:detail", args=(question.id,)))
+
+
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = "polls/profile.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        owned_polls = list(
+            Question.objects.filter(owner=self.request.user, pub_date__lte=timezone.now())
+            .annotate(total_votes=Sum("choice__votes"))
+            .order_by("-pub_date")
+        )
+
+        for poll in owned_polls:
+            poll.total_votes = poll.total_votes or 0
+
+        context["owned_polls"] = owned_polls
+        context["owned_poll_count"] = len(owned_polls)
+        return context
 
 
 class SurprisePollView(RedirectView):
@@ -312,8 +329,7 @@ class ShowcaseView(TemplateView):
             },
         ]
         context["starter_templates"] = [
-            {"slug": slug, **template_data}
-            for slug, template_data in STARTER_TEMPLATES.items()
+            {"slug": slug, **template_data} for slug, template_data in STARTER_TEMPLATES.items()
         ]
         return context
 

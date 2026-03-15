@@ -26,6 +26,7 @@
                 <a class="{% if request.resolver_match.url_name == 'showcase' %}is-active{% endif %}" href="{% url 'polls:showcase' %}">Showcase</a>
                 <a href="{% url 'polls:surprise' %}">Surprise</a>
                 {% if request.user.is_authenticated %}
+                    <a class="{% if request.resolver_match.url_name == 'profile' %}is-active{% endif %}" href="{% url 'polls:profile' %}">Profile</a>
                     <span class="nav-user">Signed in as {{ request.user.username }}</span>
                     <form action="{% url 'logout' %}" method="post" class="nav-inline-form">
                         {% csrf_token %}
@@ -52,6 +53,7 @@
                 <a href="{% url 'polls:insights' %}">Insights</a>
                 <a href="{% url 'polls:showcase' %}">Showcase</a>
                 {% if request.user.is_authenticated %}
+                    <a href="{% url 'polls:profile' %}">Profile</a>
                     <span>Signed in as {{ request.user.username }}</span>
                 {% else %}
                     <a href="{% url 'login' %}">Sign in</a>
