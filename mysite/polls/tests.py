@@ -277,6 +277,8 @@ class AuthFlowTests(TestCase):
 
         self.assertContains(response, "Sign in")
         self.assertNotContains(response, "Sign out")
+        self.assertNotContains(response, "Profile")
+        self.assertNotContains(response, reverse("polls:profile"))
 
     def test_login_redirects_to_index_and_updates_navigation(self):
         response = self.client.post(
@@ -286,6 +288,7 @@ class AuthFlowTests(TestCase):
 
         self.assertRedirects(response, reverse("polls:index"))
         follow_up = self.client.get(reverse("polls:index"))
+        self.assertContains(follow_up, "Profile")
         self.assertContains(follow_up, "Signed in as demo-user")
         self.assertContains(follow_up, "Sign out")
         self.assertContains(follow_up, reverse("polls:profile"))
