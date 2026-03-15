@@ -76,7 +76,13 @@ class IndexView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         repo_url = "https://github.com/ruggeropaolobasile/DjangoTutorial"
+        search_term = self.request.GET.get("q", "").strip()
+        status_key = self.request.GET.get("status", "all")
         published_questions = Question.objects.filter(pub_date__lte=timezone.now())
+        filtered_questions = published_questions.annotate(total_votes=Sum("choice__votes"))
+        if search_term:
+            filtered_questions = filtered_questions.filter(question_text__icontains=search_term)
+
         most_voted_poll = (
             published_questions.annotate(total_votes=Sum("choice__votes"))
             .order_by("-total_votes", "-pub_date")
@@ -91,9 +97,9 @@ class IndexView(generic.ListView):
 
         context["repo_url"] = repo_url
         context["repo_download_url"] = f"{repo_url}/archive/refs/heads/main.zip"
-        context["search_term"] = self.request.GET.get("q", "").strip()
+        context["search_term"] = search_term
         context["sort_key"] = self.request.GET.get("sort", "recent")
-        context["status_key"] = self.request.GET.get("status", "all")
+        context["status_key"] = status_key
         context["total_polls"] = published_questions.count()
         context["total_votes"] = (
             Choice.objects.filter(question__pub_date__lte=timezone.now()).aggregate(
@@ -110,6 +116,11 @@ class IndexView(generic.ListView):
             1 for question in latest_question_list if question.total_votes < 3
         )
         context["featured_poll"] = most_voted_poll or context["newest_poll"]
+        context["status_counts"] = {
+            "ready": filtered_questions.filter(total_votes__gte=5).count(),
+            "active": filtered_questions.filter(total_votes__gte=1, total_votes__lt=5).count(),
+            "cold": filtered_questions.exclude(total_votes__gte=1).count(),
+        }
         context["decision_health"] = [
             {
                 "label": "Ready for action",
@@ -151,7 +162,7 @@ class IndexView(generic.ListView):
             if chip
         ]
         has_custom_sort = context["sort_key"] != "recent"
-        has_status_filter = context["status_key"] != "all"
+        has_status_filter = status_key != "all"
         has_active_filters = bool(context["search_term"] or has_custom_sort or has_status_filter)
         empty_state_title = "No polls are available."
         empty_state_helper = "Create your first one to get started."

@@ -165,6 +165,20 @@ class QuestionIndexViewTests(TestCase):
         self.assertContains(response, "No polls are currently in the ready status.")
         self.assertContains(response, "Try a different search or remove filters.")
 
+    def test_header_shows_ready_active_cold_counts(self):
+        ready = create_question(question_text="Ready poll", days=-1)
+        active = create_question(question_text="Active poll", days=-1)
+        cold = create_question(question_text="Cold poll", days=-1)
+        future = create_question(question_text="Future poll", days=2)
+        Choice.objects.create(question=ready, choice_text="A", votes=5)
+        Choice.objects.create(question=active, choice_text="B", votes=3)
+        Choice.objects.create(question=future, choice_text="C", votes=9)
+        Choice.objects.create(question=cold, choice_text="D", votes=0)
+
+        response = self.client.get(reverse("polls:index"))
+
+        self.assertContains(response, "Ready 1 · Active 1 · Cold 1")
+
     def test_dashboard_shows_poll_status_summary(self):
         question = create_question(question_text="Delivery retro", days=-1)
         Choice.objects.create(question=question, choice_text="Keep", votes=4)

@@ -130,6 +130,9 @@
     <div class="panel-header">
         <div>
             <h2>Poll Explorer</h2>
+            <p class="section-meta">
+                Ready {{ status_counts.ready }} · Active {{ status_counts.active }} · Cold {{ status_counts.cold }}
+            </p>
             <p class="section-meta">Showing {{ visible_count }} poll{{ visible_count|pluralize }} in this view.</p>
         </div>
         <form method="get" class="toolbar-form">
