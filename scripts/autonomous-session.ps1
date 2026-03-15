@@ -54,6 +54,11 @@ function Get-ProjectData {
         [int]$ProjectNumber
     )
 
+    $projectJson = gh project view $ProjectNumber --owner $Owner --format json
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to read project metadata."
+    }
+
     $fieldsJson = gh project field-list $ProjectNumber --owner $Owner --format json
     if ($LASTEXITCODE -ne 0) {
         throw "Unable to read project fields."
@@ -65,6 +70,7 @@ function Get-ProjectData {
     }
 
     return @{
+        Project = $projectJson | ConvertFrom-Json
         Fields = $fieldsJson | ConvertFrom-Json
         Items = $itemsJson | ConvertFrom-Json
     }
@@ -72,19 +78,12 @@ function Get-ProjectData {
 
 function Get-FieldMap {
     param(
+        [object]$ProjectData,
         [object]$FieldsData
     )
 
-    $projectId = $null
-    foreach ($field in $FieldsData.fields) {
-        if ($field.id -match "^PVT") {
-            $projectId = ($field.id -replace "^(PVT(?:SSF|IF|F)?)_", "PVT_")
-            break
-        }
-    }
-
-    if (-not $projectId) {
-        throw "Unable to infer project id from field metadata."
+    if (-not $ProjectData.id) {
+        throw "Project id not found in project metadata."
     }
 
     $statusField = $FieldsData.fields | Where-Object { $_.name -eq "Status" }
@@ -98,7 +97,7 @@ function Get-FieldMap {
     }
 
     return @{
-        ProjectId = $projectId
+        ProjectId = $ProjectData.id
         StatusFieldId = $statusField.id
         StatusOptions = $optionMap
     }
@@ -261,7 +260,7 @@ while ($true) {
     Assert-CleanWorktree -RepoRoot $repoRoot -Message "Working tree became dirty before picking the next item. Stop, review changes, then resume."
 
     $projectData = Get-ProjectData -Owner $Owner -ProjectNumber $ProjectNumber
-    $fieldMap = Get-FieldMap -FieldsData $projectData.Fields
+    $fieldMap = Get-FieldMap -ProjectData $projectData.Project -FieldsData $projectData.Fields
     $item = Get-NextTodoItem -ItemsData $projectData.Items
 
     if (-not $item) {
@@ -275,85 +274,98 @@ while ($true) {
     $attempt = 1
     $recoveryNotes = ""
     $completed = $false
+    $restoreTodoOnError = $true
 
-    while ($attempt -le $MaxAttemptsPerItem -and -not $completed) {
-        $outputFile = Join-Path $env:TEMP ("codex-autonomous-output-{0}.json" -f ([guid]::NewGuid().ToString("N")))
-        $prompt = New-TaskPrompt -Item $item -Attempt $attempt -RecoveryNotes $recoveryNotes
+    try {
+        while ($attempt -le $MaxAttemptsPerItem -and -not $completed) {
+            $outputFile = Join-Path $env:TEMP ("codex-autonomous-output-{0}.json" -f ([guid]::NewGuid().ToString("N")))
+            $prompt = New-TaskPrompt -Item $item -Attempt $attempt -RecoveryNotes $recoveryNotes
 
-        $prompt | codex exec --cd $repoRoot -p $Profile --output-schema $schemaPath -o $outputFile -
-        $codexExitCode = $LASTEXITCODE
+            $prompt | codex exec --cd $repoRoot -p $Profile --output-schema $schemaPath -o $outputFile -
+            $codexExitCode = $LASTEXITCODE
 
-        if ($codexExitCode -ne 0) {
-            throw "codex exec failed for item '$($item.title)' with exit code $codexExitCode."
+            if ($codexExitCode -ne 0) {
+                throw "codex exec failed for item '$($item.title)' with exit code $codexExitCode."
+            }
+
+            $result = Get-Content $outputFile -Raw | ConvertFrom-Json
+            Remove-Item $outputFile -ErrorAction SilentlyContinue
+
+            Write-Host "Codex status: $($result.status) - $($result.summary)" -ForegroundColor DarkCyan
+
+            switch ($result.status) {
+                "done" {
+                    if (-not $SkipPreflight) {
+                        try {
+                            Invoke-Preflight -RepoRoot $repoRoot
+                        }
+                        catch {
+                            $recoveryNotes = "Preflight failed after attempt $attempt. Fix the root cause and rerun. Error: $($_.Exception.Message)"
+                            $attempt += 1
+                            continue
+                        }
+                    }
+
+                    if ($CommitOnDone) {
+                        $worktreeStatus = git -C $repoRoot status --porcelain
+                        if ($LASTEXITCODE -ne 0) {
+                            throw "Unable to read git status after task completion."
+                        }
+
+                        if (-not [string]::IsNullOrWhiteSpace(($worktreeStatus | Out-String))) {
+                            $prefix = Get-CommitMessagePrefix -Title $item.title
+                            git -C $repoRoot add -A
+                            if ($LASTEXITCODE -ne 0) {
+                                throw "git add failed after task completion."
+                            }
+
+                            git -C $repoRoot commit -m "${prefix}: $($item.title)"
+                            if ($LASTEXITCODE -ne 0) {
+                                throw "git commit failed after task completion."
+                            }
+                        }
+                    }
+
+                    Set-ProjectItemStatus -ItemId $item.id -Status "Done" -FieldMap $fieldMap
+                    $restoreTodoOnError = $false
+                    $processed += 1
+                    $completed = $true
+                }
+                "blocked" {
+                    Set-ProjectItemStatus -ItemId $item.id -Status "Todo" -FieldMap $fieldMap
+                    $restoreTodoOnError = $false
+                    $processed += 1
+                    $completed = $true
+                }
+                "needs_input" {
+                    Set-ProjectItemStatus -ItemId $item.id -Status "Todo" -FieldMap $fieldMap
+                    $restoreTodoOnError = $false
+                    Write-Host "Task requires user input. Stopping loop." -ForegroundColor Yellow
+                    return
+                }
+                "failed" {
+                    if ($attempt -ge $MaxAttemptsPerItem) {
+                        throw "Task '$($item.title)' failed after $attempt attempt(s). Notes: $($result.notes)"
+                    }
+
+                    $recoveryNotes = "Previous attempt reported failed. Summary: $($result.summary)`nNotes: $($result.notes)"
+                    $attempt += 1
+                }
+                default {
+                    throw "Unknown task status '$($result.status)'."
+                }
+            }
         }
 
-        $result = Get-Content $outputFile -Raw | ConvertFrom-Json
-        Remove-Item $outputFile -ErrorAction SilentlyContinue
-
-        Write-Host "Codex status: $($result.status) - $($result.summary)" -ForegroundColor DarkCyan
-
-        switch ($result.status) {
-            "done" {
-                if (-not $SkipPreflight) {
-                    try {
-                        Invoke-Preflight -RepoRoot $repoRoot
-                    }
-                    catch {
-                        $recoveryNotes = "Preflight failed after attempt $attempt. Fix the root cause and rerun. Error: $($_.Exception.Message)"
-                        $attempt += 1
-                        continue
-                    }
-                }
-
-                if ($CommitOnDone) {
-                    $worktreeStatus = git -C $repoRoot status --porcelain
-                    if ($LASTEXITCODE -ne 0) {
-                        throw "Unable to read git status after task completion."
-                    }
-
-                    if (-not [string]::IsNullOrWhiteSpace(($worktreeStatus | Out-String))) {
-                        $prefix = Get-CommitMessagePrefix -Title $item.title
-                        git -C $repoRoot add -A
-                        if ($LASTEXITCODE -ne 0) {
-                            throw "git add failed after task completion."
-                        }
-
-                        git -C $repoRoot commit -m "${prefix}: $($item.title)"
-                        if ($LASTEXITCODE -ne 0) {
-                            throw "git commit failed after task completion."
-                        }
-                    }
-                }
-
-                Set-ProjectItemStatus -ItemId $item.id -Status "Done" -FieldMap $fieldMap
-                $processed += 1
-                $completed = $true
-            }
-            "blocked" {
-                Set-ProjectItemStatus -ItemId $item.id -Status "Todo" -FieldMap $fieldMap
-                $processed += 1
-                $completed = $true
-            }
-            "needs_input" {
-                Set-ProjectItemStatus -ItemId $item.id -Status "Todo" -FieldMap $fieldMap
-                Write-Host "Task requires user input. Stopping loop." -ForegroundColor Yellow
-                return
-            }
-            "failed" {
-                if ($attempt -ge $MaxAttemptsPerItem) {
-                    throw "Task '$($item.title)' failed after $attempt attempt(s). Notes: $($result.notes)"
-                }
-
-                $recoveryNotes = "Previous attempt reported failed. Summary: $($result.summary)`nNotes: $($result.notes)"
-                $attempt += 1
-            }
-            default {
-                throw "Unknown task status '$($result.status)'."
-            }
+        if (-not $completed) {
+            throw "Task '$($item.title)' did not reach a terminal state."
         }
     }
+    catch {
+        if ($restoreTodoOnError) {
+            Set-ProjectItemStatus -ItemId $item.id -Status "Todo" -FieldMap $fieldMap
+        }
 
-    if (-not $completed) {
-        throw "Task '$($item.title)' did not reach a terminal state."
+        throw
     }
 }

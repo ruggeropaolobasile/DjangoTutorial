@@ -6,7 +6,8 @@
   "required": [
     "status",
     "summary",
-    "tests_run"
+    "tests_run",
+    "notes"
   ],
   "properties": {
     "status": {
@@ -29,7 +30,10 @@
       }
     },
     "notes": {
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     }
   }
 }
