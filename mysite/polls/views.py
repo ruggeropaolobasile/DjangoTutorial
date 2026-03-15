@@ -159,15 +159,15 @@ class IndexView(generic.ListView):
         if has_active_filters:
             if context["search_term"] and has_status_filter:
                 empty_state_title = (
-                    f'No polls match {context["search_term"]} in '
-                    f'{self.STATUS_LABELS[context["status_key"]].lower()}.'
+                    f"No polls match {context['search_term']} in "
+                    f"{self.STATUS_LABELS[context['status_key']].lower()}."
                 )
             elif context["search_term"]:
                 empty_state_title = f"No polls match {context['search_term']}."
             elif has_status_filter:
                 empty_state_title = (
-                    f'No polls are currently in the '
-                    f'{self.STATUS_LABELS[context["status_key"]].lower()} status.'
+                    f"No polls are currently in the "
+                    f"{self.STATUS_LABELS[context['status_key']].lower()} status."
                 )
             else:
                 empty_state_title = "No polls are available for this view."
@@ -451,8 +451,8 @@ class ResultsExportView(TemplateView):
 class InsightsView(TemplateView):
     template_name = "polls/insights.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    @staticmethod
+    def build_insights_context():
         polls = list(
             Question.objects.filter(pub_date__lte=timezone.now())
             .annotate(total_votes=Sum("choice__votes"))
@@ -475,21 +475,68 @@ class InsightsView(TemplateView):
             else 0
         )
 
-        context["insights_metrics"] = {
-            "poll_count": len(polls),
-            "vote_count": total_votes,
-            "engagement_rate": engagement_rate,
-            "quiet_count": len([poll for poll in polls if poll.total_votes < 2]),
+        return {
+            "insights_metrics": {
+                "poll_count": len(polls),
+                "vote_count": total_votes,
+                "engagement_rate": engagement_rate,
+                "quiet_count": len([poll for poll in polls if poll.total_votes < 2]),
+            },
+            "insight_recommendations": [
+                "Promote quiet polls in standup if they sit below 2 votes.",
+                "Convert polls above 5 votes into assigned follow-up actions.",
+                "Reuse the top-performing question format for the next planning cycle.",
+            ],
+            "leaderboard": leaderboard,
+            "quiet_polls": quiet_polls,
+            "recent_polls": polls[:6],
         }
-        context["insight_recommendations"] = [
-            "Promote quiet polls in standup if they sit below 2 votes.",
-            "Convert polls above 5 votes into assigned follow-up actions.",
-            "Reuse the top-performing question format for the next planning cycle.",
-        ]
-        context["leaderboard"] = leaderboard
-        context["quiet_polls"] = quiet_polls
-        context["recent_polls"] = polls[:6]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self.build_insights_context())
         return context
+
+
+class InsightsExportView(TemplateView):
+    def get(self, request, *args, **kwargs):
+        context = InsightsView.build_insights_context()
+        metrics = context["insights_metrics"]
+
+        lines = [
+            "# Polling Performance Snapshot",
+            "",
+            "## Metrics",
+            f"- Published polls: {metrics['poll_count']}",
+            f"- Total votes: {metrics['vote_count']}",
+            f"- Engagement rate: {metrics['engagement_rate']}%",
+            f"- Quiet polls: {metrics['quiet_count']}",
+            "",
+            "## Leaderboard",
+        ]
+
+        if not context["leaderboard"]:
+            lines.append("- No published polls yet.")
+        else:
+            for poll in context["leaderboard"]:
+                lines.append(f"- {poll.question_text} | votes: {poll.total_votes}")
+
+        lines.extend(["", "## Needs Attention"])
+        if not context["quiet_polls"]:
+            lines.append("- All current polls have baseline activity.")
+        else:
+            for poll in context["quiet_polls"]:
+                lines.append(
+                    f"- {poll.question_text} | votes: {poll.total_votes} | status: Low traction"
+                )
+
+        lines.extend(["", "## Recommended Actions"])
+        for recommendation in context["insight_recommendations"]:
+            lines.append(f"- {recommendation}")
+
+        response = HttpResponse("\n".join(lines), content_type="text/plain; charset=utf-8")
+        response["Content-Disposition"] = 'attachment; filename="insights-summary.txt"'
+        return response
 
 
 def vote(request, question_id):

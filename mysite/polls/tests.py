@@ -487,6 +487,7 @@ class InsightsViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Polling Performance Snapshot")
         self.assertContains(response, "Leaderboard")
+        self.assertContains(response, "Export Insights")
 
     def test_insights_page_shows_leaderboard_and_quiet_polls(self):
         loud = create_question(question_text="Platform refresh", days=-1)
@@ -500,6 +501,25 @@ class InsightsViewTests(TestCase):
         self.assertContains(response, "Workshop slot")
         self.assertContains(response, "Low traction")
         self.assertContains(response, "Recommended Actions")
+
+    def test_insights_export_returns_plain_text_attachment(self):
+        loud = create_question(question_text="Platform refresh", days=-1)
+        quiet = create_question(question_text="Workshop slot", days=-1)
+        Choice.objects.create(question=loud, choice_text="Go", votes=6)
+        Choice.objects.create(question=quiet, choice_text="Later", votes=1)
+
+        response = self.client.get(reverse("polls:insights_export"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/plain; charset=utf-8")
+        self.assertEqual(
+            response["Content-Disposition"],
+            'attachment; filename="insights-summary.txt"',
+        )
+        self.assertContains(response, "Polling Performance Snapshot")
+        self.assertContains(response, "Published polls: 2")
+        self.assertContains(response, "Platform refresh | votes: 6")
+        self.assertContains(response, "Workshop slot | votes: 1 | status: Low traction")
 
 
 class ShowcaseViewTests(TestCase):

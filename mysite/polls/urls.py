@@ -9,6 +9,7 @@ urlpatterns = [
     path("briefing/export/", views.BriefingExportView.as_view(), name="briefing_export"),
     path("create/", views.CreatePollView.as_view(), name="create"),
     path("insights/", views.InsightsView.as_view(), name="insights"),
+    path("insights/export/", views.InsightsExportView.as_view(), name="insights_export"),
     path("mvp/", views.MvpView.as_view(), name="mvp"),
     path("profile/", views.ProfileView.as_view(), name="profile"),
     path("showcase/", views.ShowcaseView.as_view(), name="showcase"),
