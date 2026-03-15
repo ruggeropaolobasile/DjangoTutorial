@@ -40,6 +40,30 @@ class QuestionModelTests(TestCase):
         self.assertIs(recent_question.was_published_recently(), True)
 
 
+class QuestionAdminTests(TestCase):
+    def test_changelist_shows_owner_column_and_loads(self):
+        admin_user = get_user_model().objects.create_superuser(
+            username="admin-user",
+            password="password",
+        )
+        owner = get_user_model().objects.create_user(
+            username="owner-user",
+            password="password",
+        )
+        Question.objects.create(
+            question_text="Owned question",
+            pub_date=timezone.now(),
+            owner=owner,
+        )
+
+        self.client.force_login(admin_user)
+        response = self.client.get(reverse("admin:polls_question_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "column-owner")
+        self.assertContains(response, "owner-user")
+
+
 def create_question(question_text, days):
     """
     Create a question with the given `question_text` and published the
