@@ -407,6 +407,21 @@ class ResultsViewTests(TestCase):
         self.assertContains(response, "Poll Results: Quarterly focus")
 
 
+class VoteViewTests(TestCase):
+    def test_future_question_cannot_be_voted_on(self):
+        question = create_question(question_text="Future question.", days=5)
+        choice = Choice.objects.create(question=question, choice_text="Wait")
+
+        response = self.client.post(
+            reverse("polls:vote", args=(question.id,)),
+            data={"choice": choice.id},
+        )
+
+        choice.refresh_from_db()
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(choice.votes, 0)
+
+
 class BrowserSmokeFlowTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
