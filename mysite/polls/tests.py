@@ -353,6 +353,45 @@ class ResultsViewTests(TestCase):
         self.assertContains(response, "Poll Results: Quarterly focus")
 
 
+class BrowserSmokeFlowTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="demo-user",
+            password="safe-password-123",
+        )
+
+    def test_login_create_vote_results_flow(self):
+        login_response = self.client.post(
+            reverse("login"),
+            data={"username": "demo-user", "password": "safe-password-123"},
+        )
+        self.assertRedirects(login_response, reverse("polls:index"))
+
+        create_response = self.client.post(
+            reverse("polls:create"),
+            data={
+                "question_text": "Smoke flow question",
+                "choices": "Option A\nOption B",
+            },
+        )
+        self.assertEqual(Question.objects.count(), 1)
+        question = Question.objects.get()
+        self.assertRedirects(create_response, reverse("polls:detail", args=(question.id,)))
+
+        choice = question.choice_set.get(choice_text="Option A")
+        vote_response = self.client.post(
+            reverse("polls:vote", args=(question.id,)),
+            data={"choice": choice.id},
+        )
+        self.assertRedirects(vote_response, reverse("polls:results", args=(question.id,)))
+
+        results_response = self.client.get(reverse("polls:results", args=(question.id,)))
+        self.assertContains(results_response, "Smoke flow question")
+        self.assertContains(results_response, "Total votes collected:")
+        self.assertContains(results_response, "1 vote")
+        self.assertContains(results_response, "Option A")
+
+
 class InsightsViewTests(TestCase):
     def test_insights_page_renders(self):
         response = self.client.get(reverse("polls:insights"))
@@ -462,3 +501,23 @@ class SeedDemoPollsAliasCommandTests(TestCase):
     def test_seed_alias_limit_maps_to_profile(self):
         call_command("seed_demo_polls", "--limit", "3")
         self.assertEqual(Question.objects.count(), 5)
+
+
+class EnsureSmokeUserCommandTests(TestCase):
+    def test_command_creates_default_smoke_user(self):
+        out = StringIO()
+
+        call_command("ensure_smoke_user", stdout=out)
+
+        user = get_user_model().objects.get(username="demo-user")
+        self.assertTrue(user.check_password("safe-password-123"))
+        self.assertIn("Smoke user created: username=demo-user", out.getvalue())
+
+    def test_command_updates_existing_user_password(self):
+        user_model = get_user_model()
+        user_model.objects.create_user(username="demo-user", password="old-password")
+
+        call_command("ensure_smoke_user", "--password", "new-password")
+
+        user = user_model.objects.get(username="demo-user")
+        self.assertTrue(user.check_password("new-password"))
