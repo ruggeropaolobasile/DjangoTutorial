@@ -609,3 +609,49 @@ class EnsureSmokeUserCommandTests(TestCase):
 
         user = user_model.objects.get(username="demo-user")
         self.assertTrue(user.check_password("new-password"))
+
+
+class EnsureSmokePollCommandTests(TestCase):
+    def test_command_creates_default_smoke_poll(self):
+        out = StringIO()
+
+        call_command("ensure_smoke_poll", stdout=out)
+
+        poll = Question.objects.get(question_text="Smoke flow: can we create and vote on a poll?")
+        self.assertEqual(poll.owner.username, "demo-user")
+        self.assertLessEqual(poll.pub_date, timezone.now())
+        self.assertEqual(
+            list(poll.choice_set.order_by("choice_text").values_list("choice_text", flat=True)),
+            ["Option A", "Option B"],
+        )
+        self.assertIn("Smoke poll created", out.getvalue())
+
+    def test_command_resets_existing_smoke_poll_to_deterministic_state(self):
+        user_model = get_user_model()
+        stale_owner = user_model.objects.create_user(username="stale-owner", password="password")
+        poll = Question.objects.create(
+            question_text="Smoke flow: can we create and vote on a poll?",
+            pub_date=timezone.now() - datetime.timedelta(days=7),
+            owner=stale_owner,
+        )
+        Choice.objects.create(question=poll, choice_text="Option A", votes=9)
+        Choice.objects.create(question=poll, choice_text="Legacy option", votes=3)
+        Question.objects.create(
+            question_text="Smoke flow: can we create and vote on a poll?",
+            pub_date=timezone.now() - datetime.timedelta(days=8),
+        )
+
+        call_command("ensure_smoke_poll")
+
+        poll.refresh_from_db()
+        self.assertEqual(
+            Question.objects.filter(
+                question_text="Smoke flow: can we create and vote on a poll?"
+            ).count(),
+            1,
+        )
+        self.assertEqual(poll.owner.username, "demo-user")
+        self.assertEqual(
+            list(poll.choice_set.order_by("choice_text").values_list("choice_text", "votes")),
+            [("Option A", 0), ("Option B", 0)],
+        )
