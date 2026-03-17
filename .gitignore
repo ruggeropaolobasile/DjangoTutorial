@@ -39,5 +39,7 @@ htmlcov/
 Thumbs.db
 
 # Local workspace artifacts
+.codex-runner/
+.playwright-cli/
 tmp/
 __sync_test.txt
