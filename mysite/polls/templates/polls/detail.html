@@ -6,7 +6,31 @@
 <section class="panel fade-in">
     <p class="eyebrow">Vote</p>
     <h1>{{ question.question_text }}</h1>
-    <p class="hero-copy">Published {{ question.pub_date|date:"M d, Y H:i" }}. Choose one option and submit.</p>
+    <p class="hero-copy">Created at {{ question.pub_date|date:"F j, Y \\a\\t H:i" }}. Choose one option and submit.</p>
+    <div class="detail-meta">
+        <article class="insight-card">
+            <p>Options</p>
+            <strong>{{ question.choice_set.count }}</strong>
+        </article>
+        <article class="insight-card">
+            <p>Voting Model</p>
+            <strong>Single choice</strong>
+        </article>
+        <article class="insight-card">
+            <p>Result View</p>
+            <strong>Live after vote</strong>
+        </article>
+    </div>
+    <section class="decision-notes">
+        <article class="note-card">
+            <p class="note-title">When to use this</p>
+            <small>Best for quick prioritization where one clear choice is needed.</small>
+        </article>
+        <article class="note-card">
+            <p class="note-title">Facilitation tip</p>
+            <small>Keep options mutually exclusive to improve result clarity.</small>
+        </article>
+    </section>
 
     <form action="{% url 'polls:vote' question.id %}" method="post" class="stack-form">
         {% csrf_token %}
@@ -28,7 +52,49 @@
             <input class="button" type="submit" value="Submit Vote">
             <a class="button button-secondary" href="{% url 'polls:results' question.id %}">View Results</a>
             <a class="button button-ghost" href="{% url 'polls:index' %}">Back to Polls</a>
+            <button class="button button-ghost" id="copy-detail-link" type="button">Copy Poll Link</button>
         </div>
     </form>
 </section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <h2>Related Polls</h2>
+    </div>
+    {% if related_polls %}
+        <ul class="poll-list">
+            {% for poll in related_polls %}
+                <li>
+                    <a href="{% url 'polls:detail' poll.id %}">
+                        {{ poll.question_text }}
+                        <small class="muted-meta">Published {{ poll.pub_date|date:"M d, Y H:i" }}</small>
+                    </a>
+                    <span class="poll-status poll-status-good">Explore</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty-state">No related polls yet.</p>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    (function () {
+        const copyButton = document.getElementById("copy-detail-link");
+        if (!copyButton) {
+            return;
+        }
+
+        copyButton.addEventListener("click", async function () {
+            try {
+                await navigator.clipboard.writeText(window.location.href);
+                copyButton.textContent = "Link Copied";
+            } catch (error) {
+                copyButton.textContent = "Copy Failed";
+            }
+        });
+    })();
+</script>
 {% endblock %}

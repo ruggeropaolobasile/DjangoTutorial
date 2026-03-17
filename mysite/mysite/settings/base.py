@@ -249,6 +249,10 @@ if not DEBUG and not TESTING:
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+LOGIN_REDIRECT_URL = "polls:index"
+LOGOUT_REDIRECT_URL = "polls:index"
+LOGIN_URL = "login"
+
 INTERNAL_IPS = ["127.0.0.1"]
 
 if not DEBUG:

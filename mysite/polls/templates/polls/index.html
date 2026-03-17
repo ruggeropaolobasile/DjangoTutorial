@@ -35,8 +35,31 @@
             </strong>
         </article>
     </div>
+    <div class="insight-strip">
+        <article class="insight-card">
+            <p>Most Voted Poll</p>
+            <strong>
+                {% if most_voted_poll %}
+                    {{ most_voted_poll.question_text|truncatechars:44 }}
+                {% else %}
+                    None yet
+                {% endif %}
+            </strong>
+        </article>
+        <article class="insight-card">
+            <p>Active This View</p>
+            <strong>{{ active_poll_count }} engaged poll{{ active_poll_count|pluralize }}</strong>
+        </article>
+        <article class="insight-card">
+            <p>Needs Attention</p>
+            <strong>{{ stalled_poll_count }} low-signal poll{{ stalled_poll_count|pluralize }}</strong>
+        </article>
+    </div>
     <div class="hero-actions">
         <a class="button" href="{% url 'polls:create' %}">Create Poll</a>
+        <a class="button button-secondary" href="{% url 'polls:briefing' %}">Open Briefing</a>
+        <a class="button button-secondary" href="{% url 'polls:insights' %}">Open Insights</a>
+        <a class="button button-secondary" href="{% url 'polls:showcase' %}">View Showcase</a>
         <a class="button button-secondary" href="{% url 'polls:surprise' %}">Surprise Me</a>
         <a class="button button-secondary" href="{{ repo_download_url }}">Download Repo</a>
         <a class="button button-ghost" href="{{ repo_url }}" target="_blank" rel="noopener noreferrer">Open GitHub</a>
@@ -45,9 +68,73 @@
     <p id="copy-feedback" class="copy-feedback" role="status" aria-live="polite"></p>
 </section>
 
+<section class="split-panel fade-in">
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Featured Decision</h2>
+        </div>
+        {% if featured_poll %}
+            <div class="feature-callout">
+                <p class="eyebrow">Most relevant right now</p>
+                <h3>{{ featured_poll.question_text }}</h3>
+                <p class="hero-copy">
+                    {% if featured_poll == most_voted_poll %}
+                        This poll currently carries the strongest decision signal.
+                    {% else %}
+                        This is the newest published question and the best place to start.
+                    {% endif %}
+                </p>
+                <div class="inline-actions">
+                    <a class="button" href="{% url 'polls:detail' featured_poll.id %}">Open Poll</a>
+                    <a class="button button-ghost" href="{% url 'polls:results' featured_poll.id %}">View Results</a>
+                </div>
+            </div>
+        {% else %}
+            <p class="empty-state">Create a poll to populate this spotlight area.</p>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Execution Snapshot</h2>
+        </div>
+        <div class="health-grid">
+            {% for item in decision_health %}
+                <article class="health-card">
+                    <p>{{ item.label }}</p>
+                    <strong>{{ item.value }}</strong>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+</section>
+
 <section class="panel fade-in">
     <div class="panel-header">
-        <h2>Poll Explorer</h2>
+        <h2>Starter Templates</h2>
+    </div>
+    <div class="template-grid">
+        {% for template in starter_templates %}
+            <article class="template-card">
+                <p class="template-title">{{ template.label }}</p>
+                <small>{{ template.description }}</small>
+                <div class="inline-actions">
+                    <a class="mini-link" href="{% url 'polls:create' %}?template={{ template.slug }}">Use template</a>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <div>
+            <h2>Poll Explorer</h2>
+            <p class="section-meta">
+                Ready {{ status_counts.ready }} · Active {{ status_counts.active }} · Cold {{ status_counts.cold }}
+            </p>
+            <p class="section-meta">Showing {{ visible_count }} poll{{ visible_count|pluralize }} in this view.</p>
+        </div>
         <form method="get" class="toolbar-form">
             <label class="visually-hidden" for="poll-search">Search polls</label>
             <input
@@ -62,9 +149,26 @@
                 <option value="recent" {% if sort_key == "recent" %}selected{% endif %}>Most Recent</option>
                 <option value="popular" {% if sort_key == "popular" %}selected{% endif %}>Most Popular</option>
             </select>
+            <label class="visually-hidden" for="poll-status">Filter by status</label>
+            <select id="poll-status" name="status">
+                <option value="all" {% if status_key == "all" %}selected{% endif %}>All Statuses</option>
+                <option value="ready" {% if status_key == "ready" %}selected{% endif %}>Ready</option>
+                <option value="active" {% if status_key == "active" %}selected{% endif %}>Active</option>
+                <option value="cold" {% if status_key == "cold" %}selected{% endif %}>Cold</option>
+            </select>
             <button type="submit" class="button button-ghost">Apply</button>
+            {% if search_term or sort_key != "recent" or status_key != "all" %}
+                <a class="button button-ghost" href="{% url 'polls:index' %}">Clear</a>
+            {% endif %}
         </form>
     </div>
+    {% if filter_chips %}
+        <div class="filter-chip-row">
+            {% for chip in filter_chips %}
+                <span class="filter-chip">{{ chip.label }}</span>
+            {% endfor %}
+        </div>
+    {% endif %}
     {% if latest_question_list %}
         <ul class="poll-list">
         {% for question in latest_question_list %}
@@ -72,21 +176,19 @@
                 <a href="{% url 'polls:detail' question.id %}">
                     {{ question.question_text }}
                     <small class="muted-meta">
-                        Published {{ question.pub_date|date:"M d, Y H:i" }}
+                        Published {{ question.pub_date|date:"M d, Y H:i" }} · {{ question.total_votes }} vote{{ question.total_votes|pluralize }}
                     </small>
                 </a>
-                <span class="poll-list-arrow" aria-hidden="true">View</span>
+                <span class="poll-status {% if question.total_votes < 3 %}poll-status-warning{% else %}poll-status-good{% endif %}">
+                    {% if question.total_votes < 3 %}Needs traction{% else %}Healthy{% endif %}
+                </span>
             </li>
         {% endfor %}
         </ul>
     {% else %}
         <p class="empty-state">
-            No polls are available.
-            {% if request.GET.q %}
-                Try a different search or remove filters.
-            {% else %}
-                Create your first one to get started.
-            {% endif %}
+            {{ empty_state_title }}
+            {{ empty_state_helper }}
         </p>
     {% endif %}
 </section>

@@ -1,4 +1,4 @@
-﻿{% load static %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,17 +18,51 @@
                 <span class="brand-text">Polling Studio</span>
             </a>
             <nav class="topnav" aria-label="Main navigation">
-                <a href="{% url 'polls:index' %}">Polls</a>
-                <a href="{% url 'polls:create' %}">Create</a>
-                <a href="{% url 'polls:mvp' %}">MVP</a>
-                <a href="{% url 'polls:pricing' %}">Pricing</a>
+                <a class="{% if request.resolver_match.url_name == 'index' %}is-active{% endif %}" href="{% url 'polls:index' %}">Polls</a>
+                <a class="{% if request.resolver_match.url_name == 'create' %}is-active{% endif %}" href="{% url 'polls:create' %}">Create</a>
+                <a class="{% if request.resolver_match.url_name == 'briefing' %}is-active{% endif %}" href="{% url 'polls:briefing' %}">Briefing</a>
+                <a class="{% if request.resolver_match.url_name == 'insights' %}is-active{% endif %}" href="{% url 'polls:insights' %}">Insights</a>
+                <a class="{% if request.resolver_match.url_name == 'automation' %}is-active{% endif %}" href="{% url 'polls:automation' %}">Automation</a>
+                <a class="{% if request.resolver_match.url_name == 'mvp' %}is-active{% endif %}" href="{% url 'polls:mvp' %}">MVP</a>
+                <a class="{% if request.resolver_match.url_name == 'pricing' %}is-active{% endif %}" href="{% url 'polls:pricing' %}">Pricing</a>
+                <a class="{% if request.resolver_match.url_name == 'showcase' %}is-active{% endif %}" href="{% url 'polls:showcase' %}">Showcase</a>
                 <a href="{% url 'polls:surprise' %}">Surprise</a>
+                {% if request.user.is_authenticated %}
+                    <a class="{% if request.resolver_match.url_name == 'profile' %}is-active{% endif %}" href="{% url 'polls:profile' %}">Profile</a>
+                    <span class="nav-user">Signed in as {{ request.user.username }}</span>
+                    <form action="{% url 'logout' %}" method="post" class="nav-inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="nav-button">Sign out</button>
+                    </form>
+                {% else %}
+                    <a class="{% if request.resolver_match.url_name == 'login' %}is-active{% endif %}" href="{% url 'login' %}">Sign in</a>
+                {% endif %}
             </nav>
         </header>
 
         <main class="content">
             {% block content %}{% endblock %}
         </main>
+        <footer class="footer-strip">
+            <div>
+                <strong>Polling Studio</strong>
+                <p>Decision support UI for lightweight team polling.</p>
+            </div>
+            <div class="footer-links">
+                <a href="{% url 'polls:index' %}">Dashboard</a>
+                <a href="{% url 'polls:create' %}">New Poll</a>
+                <a href="{% url 'polls:briefing' %}">Briefing</a>
+                <a href="{% url 'polls:insights' %}">Insights</a>
+                <a href="{% url 'polls:automation' %}">Automation</a>
+                <a href="{% url 'polls:showcase' %}">Showcase</a>
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'polls:profile' %}">Profile</a>
+                    <span>Signed in as {{ request.user.username }}</span>
+                {% else %}
+                    <a href="{% url 'login' %}">Sign in</a>
+                {% endif %}
+            </div>
+        </footer>
     </div>
     {% block extra_scripts %}{% endblock %}
 </body>

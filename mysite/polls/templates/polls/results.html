@@ -7,6 +7,39 @@
     <p class="eyebrow">Results</p>
     <h1>{{ question.question_text }}</h1>
     <p class="hero-copy">Total votes collected: <strong>{{ total_votes }}</strong></p>
+    {% if total_votes == 0 %}
+        <p class="empty-state">No votes yet. Share this poll to collect the first response.</p>
+    {% endif %}
+    <div class="detail-meta">
+        <article class="insight-card">
+            <p>Leading Choice</p>
+            <strong>{% if leading_choice %}{{ leading_choice.choice_text }}{% else %}No data{% endif %}</strong>
+        </article>
+        <article class="insight-card">
+            <p>Decision Signal</p>
+            <strong>{% if total_votes >= 5 %}Ready to act{% elif total_votes >= 1 %}Collecting feedback{% else %}Awaiting votes{% endif %}</strong>
+        </article>
+        <article class="insight-card">
+            <p>Next Step</p>
+            <strong>{% if total_votes >= 5 %}Assign owner{% else %}Invite more voters{% endif %}</strong>
+        </article>
+    </div>
+    <section class="decision-notes">
+        <article class="note-card">
+            <p class="note-title">Lead Margin</p>
+            <small>
+                {% if total_votes %}
+                    {{ decision_gap }} vote{{ decision_gap|pluralize }} ahead of the next option
+                {% else %}
+                    No lead yet
+                {% endif %}
+            </small>
+        </article>
+        <article class="note-card">
+            <p class="note-title">Runner-up</p>
+            <small>{% if runner_up %}{{ runner_up.choice_text }}{% else %}No comparison available{% endif %}</small>
+        </article>
+    </section>
 
     <ul class="result-list">
     {% for choice in choices %}
@@ -34,7 +67,51 @@
 
     <div class="inline-actions">
         <a class="button" href="{% url 'polls:detail' question.id %}">Vote Again</a>
+        <a class="button button-secondary" href="{% url 'polls:create' %}">Create Follow-up Poll</a>
+        <a class="button button-secondary" href="{% url 'polls:results_export' question.id %}">Export Results</a>
         <a class="button button-ghost" href="{% url 'polls:index' %}">Back to Polls</a>
+        <button class="button button-ghost" id="copy-results-link" type="button">Copy Results Link</button>
     </div>
 </section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <h2>Continue Exploring</h2>
+    </div>
+    {% if related_polls %}
+        <ul class="poll-list">
+            {% for poll in related_polls %}
+                <li>
+                    <a href="{% url 'polls:detail' poll.id %}">
+                        {{ poll.question_text }}
+                        <small class="muted-meta">Published {{ poll.pub_date|date:"M d, Y H:i" }}</small>
+                    </a>
+                    <span class="poll-status poll-status-good">Open</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty-state">Create another poll to keep the board active.</p>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    (function () {
+        const copyButton = document.getElementById("copy-results-link");
+        if (!copyButton) {
+            return;
+        }
+
+        copyButton.addEventListener("click", async function () {
+            try {
+                await navigator.clipboard.writeText(window.location.href);
+                copyButton.textContent = "Link Copied";
+            } catch (error) {
+                copyButton.textContent = "Copy Failed";
+            }
+        });
+    })();
+</script>
 {% endblock %}

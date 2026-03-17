@@ -7,6 +7,36 @@
     <p class="eyebrow">New Poll</p>
     <h1>Create a New Poll</h1>
     <p class="hero-copy">Add a question and at least two distinct choices.</p>
+    <div class="detail-meta">
+        <article class="insight-card">
+            <p>Suggested Formats</p>
+            <strong>Prioritization, validation, handoff</strong>
+        </article>
+        <article class="insight-card">
+            <p>Choice Pattern</p>
+            <strong>2 to 6 concise options</strong>
+        </article>
+        <article class="insight-card">
+            <p>Best Practice</p>
+            <strong>One decision per poll</strong>
+        </article>
+    </div>
+    <section class="panel-subsection">
+        <div class="panel-header">
+            <h2>Quick Start Templates</h2>
+        </div>
+        <div class="template-grid">
+            {% for template in starter_templates %}
+                <article class="template-card {% if selected_template == template.slug %}template-card-active{% endif %}">
+                    <p class="template-title">{{ template.label }}</p>
+                    <small>{{ template.description }}</small>
+                    <div class="inline-actions">
+                        <a class="mini-link" href="{% url 'polls:create' %}?template={{ template.slug }}">Load template</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
 
     <form method="post" class="stack-form">
         {% csrf_token %}
@@ -15,11 +45,31 @@
         <label for="{{ form.question_text.id_for_label }}">{{ form.question_text.label }}</label>
         {{ form.question_text }}
         {{ form.question_text.errors }}
+        <div class="composer-status" aria-live="polite">
+            <span id="question-length">0</span>/200 characters
+        </div>
+        <div class="template-grid">
+            <article class="template-card">
+                <p class="template-title">Keep it specific</p>
+                <small>Focus each poll on one decision, not a bundle of topics.</small>
+            </article>
+            <article class="template-card">
+                <p class="template-title">Options must compete</p>
+                <small>Use short alternatives that can realistically be chosen.</small>
+            </article>
+            <article class="template-card">
+                <p class="template-title">Make action obvious</p>
+                <small>Write the question so the top answer implies a next step.</small>
+            </article>
+        </div>
 
         <label for="{{ form.choices.id_for_label }}">{{ form.choices.label }}</label>
         {{ form.choices }}
         <small>{{ form.choices.help_text }}</small>
         {{ form.choices.errors }}
+        <div class="composer-status" aria-live="polite">
+            <span id="choice-count">0</span> distinct choice lines detected
+        </div>
 
         <div class="inline-actions">
             <input class="button" type="submit" value="Create Poll">
@@ -27,4 +77,39 @@
         </div>
     </form>
 </section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    (function () {
+        const questionInput = document.getElementById("id_question_text");
+        const choicesInput = document.getElementById("id_choices");
+        const questionLength = document.getElementById("question-length");
+        const choiceCount = document.getElementById("choice-count");
+
+        function updateComposerStats() {
+            if (questionInput) {
+                questionLength.textContent = questionInput.value.length;
+            }
+
+            if (choicesInput) {
+                const distinctChoices = new Set(
+                    choicesInput.value
+                        .split("\n")
+                        .map(function (line) { return line.trim(); })
+                        .filter(Boolean)
+                );
+                choiceCount.textContent = distinctChoices.size;
+            }
+        }
+
+        updateComposerStats();
+        if (questionInput) {
+            questionInput.addEventListener("input", updateComposerStats);
+        }
+        if (choicesInput) {
+            choicesInput.addEventListener("input", updateComposerStats);
+        }
+    })();
+</script>
 {% endblock %}

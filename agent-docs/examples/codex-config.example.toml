@@ -1,0 +1,10 @@
+# Example Codex CLI config.toml
+# Copy to your local Codex config path and customize.
+
+model = "gpt-5"
+model_reasoning_effort = "medium"
+
+# Workspace policy defaults (set per your safety preference).
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
+

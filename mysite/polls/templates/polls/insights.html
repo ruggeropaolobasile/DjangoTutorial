@@ -1,0 +1,115 @@
+{% extends "polls/base.html" %}
+
+{% block title %}Insights{% endblock %}
+
+{% block content %}
+<section class="hero fade-in">
+    <p class="eyebrow">Insights</p>
+    <h1>Polling Performance Snapshot</h1>
+    <p class="hero-copy">
+        A compact analytics view for signal strength, dormant polls and the questions driving the most engagement.
+    </p>
+    <div class="hero-actions">
+        <a class="button" href="{% url 'polls:insights_export' %}">Export Insights</a>
+    </div>
+    <div class="mvp-kpi-grid">
+        <article class="stat-card">
+            <p>Published Polls</p>
+            <strong>{{ insights_metrics.poll_count }}</strong>
+        </article>
+        <article class="stat-card">
+            <p>Total Votes</p>
+            <strong>{{ insights_metrics.vote_count }}</strong>
+        </article>
+        <article class="stat-card">
+            <p>Engagement Rate</p>
+            <strong>{{ insights_metrics.engagement_rate }}%</strong>
+        </article>
+        <article class="stat-card">
+            <p>Quiet Polls</p>
+            <strong>{{ insights_metrics.quiet_count }}</strong>
+        </article>
+    </div>
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <h2>Leaderboard</h2>
+    </div>
+    {% if leaderboard %}
+        <ul class="mvp-board">
+            {% for poll in leaderboard %}
+                <li>
+                    <div class="result-copy">
+                        <span>{{ poll.question_text }}</span>
+                        <small>{{ poll.total_votes }} vote{{ poll.total_votes|pluralize }}</small>
+                    </div>
+                    <div class="result-meter" role="presentation">
+                        <div class="result-meter-fill" style="width:{% if insights_metrics.vote_count %}{% widthratio poll.total_votes insights_metrics.vote_count 100 %}{% else %}0{% endif %}%"></div>
+                    </div>
+                    <a class="mini-link" href="{% url 'polls:results' poll.id %}">Open results</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty-state">No published polls yet.</p>
+    {% endif %}
+</section>
+
+<section class="split-panel fade-in">
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Needs Attention</h2>
+        </div>
+        {% if quiet_polls %}
+            <ul class="poll-list">
+                {% for poll in quiet_polls %}
+                    <li>
+                        <a href="{% url 'polls:detail' poll.id %}">
+                            {{ poll.question_text }}
+                            <small class="muted-meta">{{ poll.total_votes }} vote{{ poll.total_votes|pluralize }}</small>
+                        </a>
+                        <span class="poll-status poll-status-warning">Low traction</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty-state">All current polls have baseline activity.</p>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Recent Activity</h2>
+        </div>
+        {% if recent_polls %}
+            <ul class="poll-list">
+                {% for poll in recent_polls %}
+                    <li>
+                        <a href="{% url 'polls:detail' poll.id %}">
+                            {{ poll.question_text }}
+                            <small class="muted-meta">Published {{ poll.pub_date|date:"M d, Y H:i" }}</small>
+                        </a>
+                        <span class="poll-status poll-status-good">{{ poll.total_votes }} vote{{ poll.total_votes|pluralize }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty-state">No recent activity yet.</p>
+        {% endif %}
+    </section>
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <h2>Recommended Actions</h2>
+    </div>
+    <div class="recommendation-list">
+        {% for recommendation in insight_recommendations %}
+            <article class="recommendation-card">
+                <p>{{ recommendation }}</p>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

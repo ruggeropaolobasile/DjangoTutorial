@@ -28,6 +28,8 @@ media/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+.playwright-cli/
+.tmp-playwright/
 htmlcov/
 .coverage
 .coverage.*
@@ -43,3 +45,4 @@ Thumbs.db
 .playwright-cli/
 tmp/
 __sync_test.txt
+.codex-runner/

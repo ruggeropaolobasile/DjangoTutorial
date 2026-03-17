@@ -38,6 +38,11 @@ Se l'automazione browser si blocca su Chrome senza chiudere tutte le finestre:
 .\scripts\reset-playwright-chrome.ps1
 ```
 
+Setup rapido per smoke flow browser login -> create -> vote -> results:
+```powershell
+.\scripts\playwright-smoke-setup.ps1
+```
+
 Git Bash:
 ```bash
 bash scripts/dev.sh
@@ -248,6 +253,7 @@ Se usi piu agenti in parallelo, evita di farli lavorare sullo stesso clone.
 - [`agent-docs/03-pr-ci-process.md`](agent-docs/03-pr-ci-process.md)
 - [`agent-docs/04-preflight-and-safe-switch.md`](agent-docs/04-preflight-and-safe-switch.md)
 - [`agent-docs/05-mcp-github-starter.md`](agent-docs/05-mcp-github-starter.md)
+- [`agent-docs/playbooks/playwright-smoke.md`](agent-docs/playbooks/playwright-smoke.md)
 
 ## Dipendenze
 

@@ -1,0 +1,112 @@
+{% extends "polls/base.html" %}
+
+{% block title %}Automation Hub{% endblock %}
+
+{% block content %}
+<section class="hero fade-in">
+    <p class="eyebrow">Automation</p>
+    <h1>Automation Control Room</h1>
+    <p class="hero-copy">
+        Use this page as the operator surface for local automation: preflight readiness,
+        smoke flow setup and autonomous backlog execution.
+    </p>
+    <div class="hero-actions">
+        <a class="button" href="{% url 'polls:insights' %}">Open Insights</a>
+        <a class="button button-secondary" href="{% url 'polls:profile' %}">Review Profile</a>
+    </div>
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <div>
+            <h2>Runtime Snapshot</h2>
+            <p class="section-meta">Local signals you can use before launching or resuming automation.</p>
+        </div>
+    </div>
+    <div class="mvp-kpi-grid">
+        <article class="stat-card">
+            <p>Published Polls</p>
+            <strong>{{ automation_metrics.published_poll_count }}</strong>
+        </article>
+        <article class="stat-card">
+            <p>Smoke User</p>
+            <strong>{% if automation_metrics.smoke_user_ready %}Ready{% else %}Missing{% endif %}</strong>
+        </article>
+        <article class="stat-card">
+            <p>Smoke Poll</p>
+            <strong>{% if automation_metrics.smoke_poll_ready %}Ready{% else %}Missing{% endif %}</strong>
+        </article>
+        <article class="stat-card">
+            <p>Insights Data</p>
+            <strong>{% if automation_metrics.insights_ready %}Available{% else %}Empty{% endif %}</strong>
+        </article>
+    </div>
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <div>
+            <h2>Automation Lanes</h2>
+            <p class="section-meta">Three surfaces for managing this repo without leaving the product UI.</p>
+        </div>
+    </div>
+    <div class="showcase-grid">
+        {% for lane in automation_lanes %}
+            <article class="insight-card">
+                <p class="eyebrow">{{ forloop.counter|stringformat:"02d" }}</p>
+                <h3>{{ lane.title }}</h3>
+                <p>{{ lane.body }}</p>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <div>
+            <h2>Operator Commands</h2>
+            <p class="section-meta">Recommended local commands for starting, checking and recovering automation.</p>
+        </div>
+    </div>
+    <div class="briefing-layout">
+        <article class="insight-card">
+            <h3>Command Queue</h3>
+            <ul class="briefing-summary">
+                {% for command in automation_commands %}
+                    <li><code>{{ command }}</code></li>
+                {% endfor %}
+            </ul>
+        </article>
+        <article class="insight-card">
+            <h3>Preflight Checklist</h3>
+            <ul class="briefing-summary">
+                {% for item in automation_checklist %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </article>
+    </div>
+</section>
+
+<section class="panel fade-in">
+    <div class="panel-header">
+        <div>
+            <h2>Smoke Flow Anchor</h2>
+            <p class="section-meta">A deterministic poll keeps browser smoke flows repeatable across runs.</p>
+        </div>
+    </div>
+    {% if smoke_poll %}
+        <article class="insight-card">
+            <p class="eyebrow">Ready</p>
+            <h3>{{ smoke_poll.question_text }}</h3>
+            <p>Published {{ smoke_poll.pub_date|date:"M j, Y H:i" }}</p>
+            <a class="button button-secondary" href="{% url 'polls:detail' smoke_poll.id %}">Open Smoke Poll</a>
+        </article>
+    {% else %}
+        <p class="empty-state">
+            No deterministic smoke poll is currently available. Run <code>.\scripts\playwright-smoke-setup.ps1</code>
+            or <code>python manage.py ensure_smoke_poll</code> to create one.
+        </p>
+    {% endif %}
+</section>
+{% endblock %}

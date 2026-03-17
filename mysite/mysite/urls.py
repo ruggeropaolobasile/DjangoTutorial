@@ -25,6 +25,7 @@ from .views import healthz
 urlpatterns = [
     path("healthz/", healthz, name="healthz"),
     path("", RedirectView.as_view(pattern_name="polls:index", permanent=False)),
+    path("accounts/", include("django.contrib.auth.urls")),
     path("polls/", include("polls.urls")),
     path("admin/", admin.site.urls),
 ]

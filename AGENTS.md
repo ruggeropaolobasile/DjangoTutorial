@@ -26,6 +26,7 @@ Mantenere il progetto Django tutorial stabile in locale (`sqlite`) e in produzio
 Da root (PowerShell):
 
 ```powershell
+.\scripts\session-context.ps1
 .\scripts\preflight.ps1
 ```
 
@@ -43,6 +44,19 @@ python manage.py test
 ruff check .
 ruff format --check .
 ```
+
+## CLI tools and MCP
+
+- CLI tools preferiti nel repository:
+  - `git` (branch, diff, commit, push)
+  - `python manage.py` (check/test/migrate)
+  - `ruff` (lint/format checks)
+- script locali: `scripts/dev.ps1`, `scripts/preflight.ps1`, `scripts/safe-switch-branch.ps1`
+- per conferma sessione/worktree: `scripts/session-context.ps1`
+- MCP:
+  - stato attuale: nessun server MCP di progetto obbligatorio configurato.
+  - quando introdurre MCP: solo se aggiunge contesto reale utile (es. issue tracker, monitoring, design source).
+  - regola: documentare ogni MCP introdotto in `docs/onboarding` con scopo, permessi minimi e fallback senza MCP.
 
 ## Regole di modifica
 
@@ -65,6 +79,20 @@ ruff format --check .
 - Non eseguire due sessioni agente sullo stesso clone contemporaneamente.
 - Se servono lavori paralleli, usare clone separati del repository.
 - Prima di cambiare branch: working tree pulito (`git status`) o stash nominato.
+
+## Session lock
+
+- Una chat/sessione agente vale per un solo clone del repository.
+- Il contesto canonico della sessione va fissato all'inizio con `.\scripts\session-context.ps1`
+  oppure, in fallback, con:
+  - `git rev-parse --show-toplevel`
+  - `git branch --show-current`
+  - `git rev-parse --short HEAD`
+  - `git status --short`
+- Quel contesto resta valido finche non viene rifatta una verifica esplicita.
+- Nessun cambio clone e ammesso implicitamente nella stessa chat.
+- Se emerge un contesto diverso tra chat, IDE e terminale, fa fede il terminale del clone attivo dopo la verifica dei comandi sopra.
+- Se serve lavorare su un clone diverso, aprire una nuova sessione/chat.
 
 ## Definition of Done
 
@@ -90,6 +118,7 @@ ruff format --check .
 - `AGENTS.md` resta corto: regole globali qui, dettagli operativi nei playbook task-specific.
 - Per task grandi/multi-step, usare `agent-docs/PLANS.md` come documento vivo.
 - Ogni ExecPlan deve usare il template `agent-docs/execplan-template.md`.
+- Nei prompt, ancorare quando possibile il task a file/cartelle precise.
 
 ## Dove trovare i dettagli
 
@@ -102,6 +131,10 @@ ruff format --check .
 - Agentic loops: `agent-docs/07-unlock-agentic-loops.md`
 - Gotchas e miglioramento continuo: `agent-docs/08-real-mistakes-and-gotchas.md`
 - Playbook task-specific: `agent-docs/09-task-specific-playbooks.md`
+- Codex config/profili: `agent-docs/10-codex-config-and-profiles.md`
+- Prompting best practices: `agent-docs/11-prompting-best-practices.md`
+- Session lock playbook: `agent-docs/12-session-lock.md`
+- Project backlog flow: `agent-docs/13-project-backlog-flow.md`
 - Planning template: `agent-docs/PLANS.md`
 - ExecPlan template: `agent-docs/execplan-template.md`
 
