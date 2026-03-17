@@ -37,6 +37,9 @@ jobs:
       - name: Ruff lint
         run: python -m ruff check mysite
 
+      - name: Ruff format check
+        run: python -m ruff format --check mysite
+
   deploy-check:
     name: deploy-check
     runs-on: ubuntu-latest
