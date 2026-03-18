@@ -27,6 +27,26 @@ Usalo come base locale, poi personalizza in base al tuo livello di rischio/veloc
 - Sessione con profilo conservativo: `codex -p safe`
 - Sessione autonoma: `codex -p autonomous`
 
+## Nota Windows
+
+Se su Windows `codex login status` o `codex exec` falliscono con `Accesso negato. (os error 5)`, verifica la sezione `[windows]` nel tuo `config.toml` locale.
+
+Configurazione che puo creare problemi in alcuni ambienti:
+
+```toml
+[windows]
+sandbox = "elevated"
+```
+
+Fallback consigliato:
+
+```toml
+[windows]
+sandbox = "unelevated"
+```
+
+Su Windows il valore di `windows.sandbox` e distinto dal `sandbox_mode` generale e accetta solo varianti Windows-specifiche.
+
 ## Quando usare `never`
 
 `never` accelera molto il flusso, ma non avrai richieste di conferma.

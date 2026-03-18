@@ -166,6 +166,41 @@ Prima di modificare file o cambiare branch, verifica sempre:
 - `role`
 
 Playbook completo: [`docs/workspace-preflight.md`](docs/workspace-preflight.md)
+
+### Nota Windows per Codex CLI
+
+Se `codex login status` o `codex exec` falliscono con `Accesso negato. (os error 5)`, controlla la tua config locale in `%USERPROFILE%\.codex\config.toml`.
+
+Su Windows, il blocco puo dipendere da:
+
+```toml
+[windows]
+sandbox = "elevated"
+```
+
+Se succede, prova:
+
+```toml
+[windows]
+sandbox = "unelevated"
+```
+
+Questa impostazione e locale e non va committata nel repository.
+
+Se il problema compare solo in questo clone e non in altri, controlla anche la cartella repo-local `.codex`:
+
+```powershell
+icacls .codex
+```
+
+Se vedi entry ACL `DENY` su write/delete/read-permissions, `codex` puo fallire all'avvio anche con config corretta. Recovery rapido:
+
+```powershell
+rename-item .codex .codex.broken
+codex
+```
+
+Se `codex` riparte, la root cause era la cartella `.codex` locale corrotta o con permessi anomali.
 ### Switch branch in sicurezza
 
 PowerShell:
