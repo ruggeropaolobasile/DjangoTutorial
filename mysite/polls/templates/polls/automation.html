@@ -91,7 +91,43 @@
 <section class="panel fade-in">
     <div class="panel-header">
         <div>
-            <h2>Smoke Flow Anchor</h2>
+            <h2>Recent Agent Activity</h2>
+            <p class="section-meta">Latest recording sessions from autonomous agents or manual CLI runs.</p>
+        </div>
+    </div>
+    {% if recent_sessions %}
+        <div class="table-container">
+            <table class="session-table">
+                <thead>
+                    <tr>
+                        <th>Task Name</th>
+                        <th>Started At</th>
+                        <th>Status</th>
+                        <th>Summary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in recent_sessions %}
+                        <tr>
+                            <td><strong>{{ session.task_name }}</strong></td>
+                            <td>{{ session.started_at|date:"M j, H:i" }}</td>
+                            <td>
+                                <span class="badge badge-{{ session.status }}">
+                                    {{ session.status|capfirst }}
+                                </span>
+                            </td>
+                            <td class="session-summary">{{ session.summary|truncatechars:60 }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="empty-state">No recent activity recorded. Run an autonomous session to populate this list.</p>
+    {% endif %}
+</section>
+
+<section class="panel fade-in">
             <p class="section-meta">A deterministic poll keeps browser smoke flows repeatable across runs.</p>
         </div>
     </div>

@@ -442,6 +442,13 @@ body {
     border: 1px solid #bae6fd;
     font-size: 0.8rem;
     font-weight: 600;
+    text-decoration: none;
+}
+
+.filter-active {
+    background: #0f766e;
+    color: #ffffff;
+    border-color: #0f766e;
 }
 
 .toolbar-form input[type="text"],
@@ -847,4 +854,111 @@ ul.errorlist {
     .button {
         width: 100%;
     }
+}
+
+/* Session Table & Badges */
+.table-container {
+    overflow-x: auto;
+    margin-top: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    background: var(--surface-alt);
+}
+
+.session-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.88rem;
+}
+
+.session-table th {
+    background: rgba(15, 118, 110, 0.05);
+    padding: 0.75rem 1rem;
+    font-weight: 700;
+    color: var(--primary-strong);
+    border-bottom: 1px solid var(--line);
+}
+
+.session-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(216, 224, 238, 0.5);
+    color: var(--muted);
+}
+
+.session-table tr:last-child td {
+    border-bottom: none;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.badge-running {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-failed {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.session-summary {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8rem;
+}
+
+/* Flash Messages */
+.messages-container {
+    margin: 1rem 0;
+    display: grid;
+    gap: 0.5rem;
+}
+
+.message {
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    border: 1px solid transparent;
+}
+
+.message-success {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #a7f3d0;
+}
+
+.message-info {
+    background: #e0f2fe;
+    color: #075985;
+    border-color: #bae6fd;
+}
+
+.message-warning {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #fde68a;
+}
+
+.message-error,
+.message-debug {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
 }
