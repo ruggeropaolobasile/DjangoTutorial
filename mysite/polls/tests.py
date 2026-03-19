@@ -643,6 +643,8 @@ class InsightsViewTests(TestCase):
         self.assertContains(response, "Polling Performance Snapshot")
         self.assertContains(response, "Leaderboard")
         self.assertContains(response, "Export Summary (TXT)")
+        self.assertContains(response, "Export Leaderboard")
+        self.assertContains(response, f'{reverse("polls:insights_export")}#leaderboard')
 
     def test_insights_page_shows_leaderboard_and_quiet_polls(self):
         loud = create_question(question_text="Platform refresh", days=-1)

@@ -36,6 +36,7 @@
 <section class="panel fade-in">
     <div class="panel-header">
         <h2>Leaderboard</h2>
+        <a class="mini-link" href="{% url 'polls:insights_export' %}#leaderboard">Export Leaderboard</a>
     </div>
     {% if leaderboard %}
         <ul class="mvp-board">
