@@ -41,6 +41,9 @@
     {% if selected_template %}
         <div class="notice-panel fade-in" style="margin-top: 1.5rem; padding: 1rem; border-radius: 0.75rem; border: 1px solid #bae6fd; background: #f0f9ff; color: #0369a1;">
             <strong>Template Active:</strong> Your form has been pre-populated with the <em>{{ selected_template|title }}</em> structure.
+            {% if selected_template_detail and selected_template_detail.description %}
+                <p style="margin-top:0.5rem;">{{ selected_template_detail.description }}</p>
+            {% endif %}
         </div>
     {% endif %}
 

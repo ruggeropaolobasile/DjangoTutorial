@@ -282,6 +282,10 @@ class PollCreateViewTests(TestCase):
 
         self.assertContains(response, "Which feature should we prioritize next sprint?")
         self.assertContains(response, "Automation hub")
+        self.assertContains(
+            response,
+            "Use this when the team needs a fast prioritization decision.",
+        )
 
     def test_post_creates_poll_and_choices(self):
         self.client.login(username="demo-user", password="safe-password-123")

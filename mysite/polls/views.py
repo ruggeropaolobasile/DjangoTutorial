@@ -264,6 +264,7 @@ class CreatePollView(LoginRequiredMixin, generic.FormView):
         ]
         selected_template = self.request.GET.get("template", "").strip().lower()
         context["selected_template"] = selected_template
+        context["selected_template_detail"] = STARTER_TEMPLATES.get(selected_template)
         return context
 
     def form_valid(self, form):
