@@ -6,6 +6,9 @@
 <section class="panel fade-in">
     <p class="eyebrow">Results</p>
     <h1>{{ question.question_text }}</h1>
+    <p class="muted-meta" style="margin-top: -0.5rem; margin-bottom: 1rem;">
+        Published on {{ question.pub_date|date:"F j, Y" }}
+    </p>
     <p class="hero-copy">Total votes collected: <strong>{{ total_votes }}</strong></p>
     {% if total_votes == 0 %}
         <p class="empty-state">No votes yet. Share this poll to collect the first response.</p>

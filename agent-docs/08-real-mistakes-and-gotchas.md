@@ -34,6 +34,14 @@ Quando emerge un errore concreto (in locale, CI o PR review):
 - Prevenzione: mantenere il controllo nel preflight e riusare il loop `modifica -> verifica -> riverifica`.
 - Riferimenti: commit `c470627`, file `scripts/preflight.ps1`.
 
+## 2026-03-19 - Codex CLI bloccato da ACL `DENY` sulla cartella repo `.codex`
+- Contesto: avvio di `codex` da `C:\repo\djangotutorial` su Windows.
+- Sintomo: `codex` falliva subito con `Accesso negato. (os error 5)` in questo clone, ma funzionava in altri cloni sulla stessa macchina.
+- Root cause: la cartella locale `.codex` del repository aveva ACL Windows con entry esplicite `DENY` su write/delete/read-permissions.
+- Fix applicato: rinomina della cartella problematica (`rename-item .codex .codex.broken`) e nuovo avvio di `codex`.
+- Prevenzione: se `codex` fallisce solo in un clone, controllare prima `icacls .codex`; se compaiono entry `DENY`, non perdere tempo su config remota o repo GitHub prima di isolare la cartella locale.
+- Riferimenti: root repo `.codex/`, `README.md`, `agent-docs/10-codex-config-and-profiles.md`.
+
 ## Dove mantenere il log
 
 - Questo file e il log centrale dei gotchas di processo.

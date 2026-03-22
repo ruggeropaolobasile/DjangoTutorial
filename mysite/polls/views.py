@@ -1,5 +1,7 @@
+import csv
 from urllib.parse import urlencode
 
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
@@ -12,7 +14,7 @@ from django.views import generic
 from django.views.generic.base import RedirectView, TemplateView
 
 from .forms import PollCreateForm
-from .models import Choice, Question
+from .models import AgentSession, Choice, Question
 
 STARTER_TEMPLATES = {
     "roadmap": {
@@ -169,20 +171,17 @@ class IndexView(generic.ListView):
         empty_state_helper = "Create your first one to get started."
 
         if has_active_filters:
-            if context["search_term"] and has_status_filter:
-                empty_state_title = (
-                    f"No polls match {context['search_term']} in "
-                    f"{self.STATUS_LABELS[context['status_key']].lower()}."
-                )
-            elif context["search_term"]:
+            if context["search_term"] and not has_status_filter:
                 empty_state_title = f"No polls match {context['search_term']}."
-            elif has_status_filter:
-                empty_state_title = (
-                    f"No polls are currently in the "
-                    f"{self.STATUS_LABELS[context['status_key']].lower()} status."
-                )
+            elif has_status_filter and not context["search_term"]:
+                empty_state_title = f"No polls are currently in the {status_key} status."
             else:
-                empty_state_title = "No polls are available for this view."
+                parts = []
+                if context["search_term"]:
+                    parts.append(f"matching '{context['search_term']}'")
+                if has_status_filter:
+                    parts.append(f"with status '{status_key}'")
+                empty_state_title = f"No polls found {' '.join(parts)}."
 
             empty_state_helper = "Try a different search or remove filters."
 
@@ -265,6 +264,7 @@ class CreatePollView(LoginRequiredMixin, generic.FormView):
         ]
         selected_template = self.request.GET.get("template", "").strip().lower()
         context["selected_template"] = selected_template
+        context["selected_template_detail"] = STARTER_TEMPLATES.get(selected_template)
         return context
 
     def form_valid(self, form):
@@ -280,6 +280,7 @@ class CreatePollView(LoginRequiredMixin, generic.FormView):
                     for choice_text in form.cleaned_data["choices"]
                 ]
             )
+        messages.success(self.request, "Poll created successfully!")
         return HttpResponseRedirect(reverse("polls:detail", args=(question.id,)))
 
 
@@ -442,6 +443,7 @@ class AutomationView(TemplateView):
             "Smoke user and smoke poll are ready for browser checks",
         ]
         context["smoke_poll"] = smoke_poll
+        context["recent_sessions"] = AgentSession.objects.order_by("-started_at")[:10]
         return context
 
 
@@ -530,7 +532,7 @@ class InsightsView(TemplateView):
     template_name = "polls/insights.html"
 
     @staticmethod
-    def build_insights_context():
+    def build_insights_context(filter_key="all"):
         polls = list(
             Question.objects.filter(pub_date__lte=timezone.now())
             .annotate(total_votes=Sum("choice__votes"))
@@ -539,6 +541,15 @@ class InsightsView(TemplateView):
 
         for poll in polls:
             poll.total_votes = poll.total_votes or 0
+
+        # Filter logic
+        filtered_polls = polls
+        if filter_key == "ready":
+            filtered_polls = [p for p in polls if p.total_votes >= 5]
+        elif filter_key == "active":
+            filtered_polls = [p for p in polls if 1 <= p.total_votes < 5]
+        elif filter_key == "cold":
+            filtered_polls = [p for p in polls if p.total_votes < 1]
 
         leaderboard = sorted(
             polls,
@@ -567,16 +578,19 @@ class InsightsView(TemplateView):
             ],
             "leaderboard": leaderboard,
             "quiet_polls": quiet_polls,
-            "recent_polls": polls[:6],
+            "recent_polls": filtered_polls[:10],  # Show filtered list
+            "filter_key": filter_key,
         }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(self.build_insights_context())
+        filter_key = self.request.GET.get("filter", "all")
+        context.update(self.build_insights_context(filter_key))
         return context
 
 
 class InsightsExportView(TemplateView):
+    # ... esistente ...
     def get(self, request, *args, **kwargs):
         context = InsightsView.build_insights_context()
         metrics = context["insights_metrics"]
@@ -618,6 +632,31 @@ class InsightsExportView(TemplateView):
         return response
 
 
+class InsightsCsvExportView(generic.View):
+    def get(self, request, *args, **kwargs):
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = 'attachment; filename="polling-insights.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(["Question Text", "Pub Date", "Total Votes", "Status"])
+
+        polls = Question.objects.filter(pub_date__lte=timezone.now()).annotate(
+            total_votes=Sum("choice__votes")
+        )
+
+        for poll in polls:
+            vote_count = poll.total_votes or 0
+            status = "Ready" if vote_count >= 5 else "Active" if vote_count >= 1 else "Cold"
+            writer.writerow([
+                poll.question_text,
+                poll.pub_date.strftime("%Y-%m-%d %H:%M"),
+                vote_count,
+                status
+            ])
+
+        return response
+
+
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id, pub_date__lte=timezone.now())
     try:
@@ -635,6 +674,7 @@ def vote(request, question_id):
 
     selected_choice.votes += 1
     selected_choice.save()
+    messages.success(request, f"Your vote for '{selected_choice.choice_text}' has been recorded.")
     # Always return an HttpResponseRedirect after successfully dealing
     # with POST data. This prevents data from being posted twice if a
     # user hits the Back button.

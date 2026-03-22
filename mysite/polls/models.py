@@ -6,7 +6,44 @@ from django.db import models
 from django.utils import timezone
 
 
+class QuestionQuerySet(models.QuerySet):
+    def published(self):
+        return self.filter(pub_date__lte=timezone.now())
+
+    def with_stats(self):
+        return self.annotate(total_votes=models.Sum("choice__votes"))
+
+    def search(self, query):
+        if not query:
+            return self
+        return self.filter(question_text__icontains=query)
+
+    def by_status(self, status_key):
+        if status_key == "ready":
+            return self.with_stats().filter(total_votes__gte=5)
+        elif status_key == "active":
+            return self.with_stats().filter(total_votes__gte=1, total_votes__lt=5)
+        elif status_key == "cold":
+            # Using exclude to handle both 0 and None if choice set is empty
+            return self.with_stats().filter(
+                models.Q(total_votes__lt=1) | models.Q(total_votes__isnull=True)
+            )
+        return self
+
+
+class QuestionManager(models.Manager):
+    def get_queryset(self):
+        return QuestionQuerySet(self.model, using=self._db)
+
+    def published(self):
+        return self.get_queryset().published()
+
+    def with_stats(self):
+        return self.get_queryset().with_stats()
+
+
 class Question(models.Model):
+    objects = QuestionManager()
     question_text = models.CharField(max_length=200)
     pub_date = models.DateTimeField("date published")
     owner = models.ForeignKey(

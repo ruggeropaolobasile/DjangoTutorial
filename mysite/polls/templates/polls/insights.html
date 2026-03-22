@@ -10,7 +10,8 @@
         A compact analytics view for signal strength, dormant polls and the questions driving the most engagement.
     </p>
     <div class="hero-actions">
-        <a class="button" href="{% url 'polls:insights_export' %}">Export Insights</a>
+        <a class="button" href="{% url 'polls:insights_export' %}">Export Summary (TXT)</a>
+        <a class="button button-secondary" href="{% url 'polls:insights_csv_export' %}">Export Data (CSV)</a>
     </div>
     <div class="mvp-kpi-grid">
         <article class="stat-card">
@@ -35,6 +36,7 @@
 <section class="panel fade-in">
     <div class="panel-header">
         <h2>Leaderboard</h2>
+        <a class="mini-link" href="{% url 'polls:insights_export' %}#leaderboard">Export Leaderboard</a>
     </div>
     {% if leaderboard %}
         <ul class="mvp-board">
@@ -78,26 +80,37 @@
         {% endif %}
     </section>
 
-    <section class="panel">
-        <div class="panel-header">
-            <h2>Recent Activity</h2>
+<section class="panel fade-in">
+    <div class="panel-header">
+        <h2>Recent Activity</h2>
+        <div class="filter-chip-row">
+            <a href="?filter=all" class="filter-chip {% if filter_key == 'all' %}filter-active{% endif %}">All</a>
+            <a href="?filter=ready" class="filter-chip {% if filter_key == 'ready' %}filter-active{% endif %}">Ready</a>
+            <a href="?filter=active" class="filter-chip {% if filter_key == 'active' %}filter-active{% endif %}">Active</a>
+            <a href="?filter=cold" class="filter-chip {% if filter_key == 'cold' %}filter-active{% endif %}">Cold</a>
         </div>
-        {% if recent_polls %}
-            <ul class="poll-list">
-                {% for poll in recent_polls %}
-                    <li>
-                        <a href="{% url 'polls:detail' poll.id %}">
-                            {{ poll.question_text }}
-                            <small class="muted-meta">Published {{ poll.pub_date|date:"M d, Y H:i" }}</small>
-                        </a>
-                        <span class="poll-status poll-status-good">{{ poll.total_votes }} vote{{ poll.total_votes|pluralize }}</span>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p class="empty-state">No recent activity yet.</p>
-        {% endif %}
-    </section>
+    </div>
+    {% if recent_polls %}
+        <ul class="poll-list">
+            {% for poll in recent_polls %}
+                <li>
+                    <a href="{% url 'polls:detail' poll.id %}">
+                        {{ poll.question_text }}
+                        <small class="muted-meta">Published {{ poll.pub_date|date:"M d, Y H:i" }}</small>
+                    </a>
+                    {% if poll.total_votes >= 5 %}
+                        <span class="poll-status poll-status-good">Ready ({{ poll.total_votes }})</span>
+                    {% elif poll.total_votes >= 1 %}
+                        <span class="poll-status poll-status-good">Active ({{ poll.total_votes }})</span>
+                    {% else %}
+                        <span class="poll-status poll-status-warning">Cold (0)</span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty-state">No polls match this filter.</p>
+    {% endif %}
 </section>
 
 <section class="panel fade-in">

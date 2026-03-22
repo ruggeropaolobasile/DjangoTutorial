@@ -8,3 +8,9 @@ model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 approval_policy = "on-request"
 
+# Windows-only override.
+# If `codex login status` or `codex exec` fail with `Accesso negato. (os error 5)`,
+# prefer `unelevated` instead of `elevated`.
+[windows]
+sandbox = "unelevated"
+

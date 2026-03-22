@@ -282,6 +282,10 @@ class PollCreateViewTests(TestCase):
 
         self.assertContains(response, "Which feature should we prioritize next sprint?")
         self.assertContains(response, "Automation hub")
+        self.assertContains(
+            response,
+            "Use this when the team needs a fast prioritization decision.",
+        )
 
     def test_post_creates_poll_and_choices(self):
         self.client.login(username="demo-user", password="safe-password-123")
@@ -291,6 +295,7 @@ class PollCreateViewTests(TestCase):
                 "question_text": "What should we build next?",
                 "choices": "Dashboard\nAPI\nCLI",
             },
+            follow=True,
         )
 
         self.assertEqual(Question.objects.count(), 1)
@@ -299,6 +304,7 @@ class PollCreateViewTests(TestCase):
         self.assertEqual(question.owner, self.user)
         self.assertEqual(question.choice_set.count(), 3)
         self.assertRedirects(response, reverse("polls:detail", args=(question.id,)))
+        self.assertContains(response, "Poll created successfully!")
 
     def test_post_requires_at_least_two_distinct_choices(self):
         self.client.login(username="demo-user", password="safe-password-123")
@@ -314,6 +320,24 @@ class PollCreateViewTests(TestCase):
         self.assertContains(response, "Please provide at least two distinct choices.")
         self.assertEqual(Question.objects.count(), 0)
         self.assertEqual(Choice.objects.count(), 0)
+
+    def test_post_deduplicates_choices(self):
+        self.client.login(username="demo-user", password="safe-password-123")
+        self.client.post(
+            reverse("polls:create"),
+            data={
+                "question_text": "Duplicate choice test",
+                "choices": "A\nA\nB\nB\nC",
+            },
+        )
+
+        question = Question.objects.get(question_text="Duplicate choice test")
+        self.assertEqual(question.choice_set.count(), 3)
+        self.assertQuerySetEqual(
+            question.choice_set.order_by("choice_text"),
+            ["A", "B", "C"],
+            transform=lambda c: c.choice_text,
+        )
 
 
 class AuthFlowTests(TestCase):
@@ -343,24 +367,25 @@ class AuthFlowTests(TestCase):
         response = self.client.post(
             reverse("login"),
             data={"username": "demo-user", "password": "safe-password-123"},
+            follow=True,
         )
 
         self.assertRedirects(response, reverse("polls:index"))
-        follow_up = self.client.get(reverse("polls:index"))
-        self.assertContains(follow_up, "Profile")
-        self.assertContains(follow_up, "Signed in as demo-user")
-        self.assertContains(follow_up, "Sign out")
-        self.assertContains(follow_up, reverse("polls:profile"))
+        self.assertContains(response, "Profile")
+        self.assertContains(response, "Signed in as demo-user")
+        self.assertContains(response, "Sign out")
+        self.assertContains(response, reverse("polls:profile"))
+        self.assertContains(response, "Welcome back, demo-user!")
 
     def test_logout_redirects_to_index(self):
         self.client.login(username="demo-user", password="safe-password-123")
 
-        response = self.client.post(reverse("logout"))
+        response = self.client.post(reverse("logout"), follow=True)
 
         self.assertRedirects(response, reverse("polls:index"))
-        follow_up = self.client.get(reverse("polls:index"))
-        self.assertContains(follow_up, "Sign in")
-        self.assertNotContains(follow_up, "Signed in as demo-user")
+        self.assertContains(response, "Sign in")
+        self.assertNotContains(response, "Signed in as demo-user")
+        self.assertContains(response, "You have successfully signed out.")
 
 
 class SurprisePollViewTests(TestCase):
@@ -544,6 +569,23 @@ class ResultsViewTests(TestCase):
 
 
 class VoteViewTests(TestCase):
+    def test_successful_vote_shows_message(self):
+        question = create_question(question_text="Voting test poll", days=-1)
+        choice = Choice.objects.create(question=question, choice_text="Vote for me")
+
+        response = self.client.post(
+            reverse("polls:vote", args=(question.id,)),
+            data={"choice": choice.id},
+            follow=True,
+        )
+
+        self.assertRedirects(response, reverse("polls:results", args=(question.id,)))
+        # Note: quotes are escaped in HTML rendering
+        self.assertContains(
+            response,
+            f"Your vote for &#x27;{choice.choice_text}&#x27; has been recorded.",
+        )
+
     def test_future_question_cannot_be_voted_on(self):
         question = create_question(question_text="Future question.", days=5)
         choice = Choice.objects.create(question=question, choice_text="Wait")
@@ -604,7 +646,9 @@ class InsightsViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Polling Performance Snapshot")
         self.assertContains(response, "Leaderboard")
-        self.assertContains(response, "Export Insights")
+        self.assertContains(response, "Export Summary (TXT)")
+        self.assertContains(response, "Export Leaderboard")
+        self.assertContains(response, f'{reverse("polls:insights_export")}#leaderboard')
 
     def test_insights_page_shows_leaderboard_and_quiet_polls(self):
         loud = create_question(question_text="Platform refresh", days=-1)

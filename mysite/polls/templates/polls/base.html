@@ -40,6 +40,16 @@
             </nav>
         </header>
 
+        {% if messages %}
+            <div class="messages-container fade-in">
+                {% for message in messages %}
+                    <div class="message message-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
         <main class="content">
             {% block content %}{% endblock %}
         </main>
